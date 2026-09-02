@@ -4,12 +4,6 @@
 
 ## Principais atividades
 
-* Identificar os principais requisitos (funcionais e não funcionais).
+* Configuração do ambiente de desenvolvimento.
 
-* Estimar custos e prazos iniciais.
-
-* Avaliar riscos de alto nível.
-
-* Criar um caso de negócio (business case).
-
-* Produto principal: Visão do projeto e caso de negócio aprovado.
+* Pesquisas de mercado e analise de soluções existentes.
