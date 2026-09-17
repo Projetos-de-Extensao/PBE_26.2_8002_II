@@ -1,59 +1,86 @@
-@startuml mindmap
-skinparam monochrome true
-skinparam ArrowColor #000000
+@startmindmap
+skinparam monochrome false
+skinparam backgroundColor #FFFFFF
+skinparam ArrowColor #2F5D50
 skinparam NodeFontSize 14
+skinparam NodeFontColor #263238
 
-* Censo Demográfico 2022
-** Dados Coletados
-*** 1. Identificação do Domicílio
-    **** UF/Município/Distrito
-    **** Espécie (Permanente/Improvisado/Coletivo)
-    **** Tipo (Casa/Apartamento/Tenda/etc.)
-*** 2. Moradores
-    **** Quantidade total
-    **** Crianças (0-9 anos)
-    **** _Lista por nome_
-    **** Sexo/Data Nascimento/Idade
-    **** Parentesco com responsável
-*** 3. Características do Domicílio
-    **** Água (Rede/Poço/Chuva)
-    **** Banheiros/Esgoto
-    **** Coleta de Lixo
-*** 4. Identificação Étnico-Racial
-    **** Cor/Raça (Branca/Preta/Parda/Indígena)
-    **** Línguas Indígenas
-    **** Comunidades Quilombolas
-*** 7. Trabalho e Renda
-    **** Rendimento do Responsável
-    **** Faixas de Renda
-*** 8. Mortalidade
-    **** Óbitos (2019-2022)
-    **** Idade/Causa
+* Sistema de Gestão da Academia de Futebol Infantil
+** Problema e objetivo
+*** Centralizar a rotina da academia
+*** Evitar conflitos de agenda e superlotação
+*** Proteger dados de crianças de 7 a 12 anos
+*** Apoiar a evolução física e técnica dos atletas
 
-** Fluxo do Questionário
-*** _Seção 1 → Seção 2_
-    **** Se domicílio ocupado
-*** _Seção 2 → Seção 3_
-    **** Se domicílio permanente
-*** _Seção 4 condicional_
-    **** Indígena? → Etnia
-    **** Quilombola? → Comunidade
+** Usuários e permissões
+*** Responsável
+**** Cadastra dependentes
+**** Agenda e cancela treinamentos
+**** Consulta agenda e evolução dos dependentes
+*** Profissional
+**** Consulta agenda e turmas atribuídas
+**** Registra presença e avaliações autorizadas
+*** Administração e recepção
+**** Gerencia cadastros, conflitos e comunicados
+**** Controla espaços, turmas e profissionais
+*** Acesso por perfil e princípio do menor privilégio
 
-** Tecnologias
-*** Coleta
-    **** Formulário Digital (API Django)
-    **** Sincronização Offline
-*** Processamento
-    **** Validação Automática
-    **** Georreferenciamento
-*** Análise
-    <<dashboard>>
-    Dashboard Interativo
-    Relatórios CSV/PDF
+** Cadastros
+*** Usuários e responsáveis
+**** Autenticação e recuperação de senha
+**** Vínculo com um ou mais responsáveis legais
+*** Alunos e atletas
+**** Data de nascimento e validação de idade
+**** Situação: ativo, afastado ou inativo
+**** Saúde, restrições e autorizações com acesso restrito
+*** Profissionais
+**** Especialidades e disponibilidade
+*** Espaços e turmas
+**** Capacidade, modalidade, duração e faixa etária
 
-** Atores Principais
-*** Entrevistador
-*** Responsável pelo Domicílio
-*** IBGE (Coordenação)
-*** Equipe de TI
-@enduml
+** Operação dos treinamentos
+*** Agendamento
+**** Selecionar aluno, data, horário e turma
+**** Verificar aluno, profissional, espaço e turma
+**** Bloquear duplicidade e horários conflitantes
+*** Regras de negócio
+**** Idade compatível com a turma
+**** Limite de vagas da turma e do espaço
+**** Disponibilidade do profissional
+*** Cancelamento e reagendamento
+**** Respeitar prazo definido pela academia
+**** Liberar a vaga após cancelamento
+**** Manter histórico e responsável pela alteração
+*** Evolução futura: fila de espera
+
+** Acompanhamento e comunicação
+*** Presença e frequência
+**** Presente, ausente ou falta justificada
+*** Evolução do atleta
+**** Avaliações físicas e técnicas
+**** Histórico de treinamentos
+*** Notificações internas
+**** Confirmações e alterações de agendamento
+**** Inclusão ou remoção de aluno na turma
+**** Cancelamento pela academia
+
+** Administração e indicadores
+*** Dashboard operacional
+**** Ocupação e vagas por turma
+**** Agenda de espaços e profissionais
+**** Treinamentos do dia e alunos esperados
+*** Relatórios básicos
+**** Faltas, cancelamentos e reagendamentos
+**** Alunos ativos, afastados e inativos
+*** Evolução futura
+**** Integração financeira e inadimplência
+**** E-mail e SMS
+**** Relatórios avançados
+
+** Base tecnológica
+*** Backend em Python e Django
+*** Autenticação e autorização nativas
+*** Validações automáticas das regras
+*** Auditoria de alterações relevantes
+*** MVP focado em cadastro e agendamento
+@endmindmap
