@@ -38,7 +38,7 @@ skinparam ArrowColor #2F5D50
 skinparam NodeFontSize 14
 skinparam NodeFontColor #263238
 
-* Sistema de Gestão da Academia de Futebol Infantil
+* Academia de alta performance
 ** Problema e objetivo
 *** Centralizar a rotina da academia
 *** Evitar conflitos de agenda e superlotação
