@@ -30,7 +30,7 @@ Ambos devem ser derivados de:
 - **Diagrama de casos de uso**: escopo e fronteiras do sistema.
 - **Protótipo de baixa fidelidade**: entidades percebidas na interface e regras de navegação.
 
-### 1) Diagrama de Classes Conceitual
+### 1) Diagrama de Classes Conceitual 
 
 #### 1.1 Finalidade
 
@@ -116,8 +116,8 @@ Refinar o modelo conceitual para uma estrutura orientada à implementação.
 
 - **Versão**: `v0.1`, `v0.2`...
 - **Data**: `dd/mm/aaaa`
-- **Autor(es)**: `<nome>`
-- **Revisor(es)**: `<nome>`
+- **Autor(es)**: `<Victor Coutinho>`
+- **Revisor(es)**: `Luiz Fernando, Giovanna Sales, Ricardo`
 - **Resumo da alteração**: `<descrição curta>`
 
 ### 5) Entregáveis
