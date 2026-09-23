@@ -1,414 +1,256 @@
 ---
-id: levantamento de requisitos
-title: Levantamento de Requisitos
----
-# **06 - Levantamento de Requisitos e Caso de Uso**
-
-**Sistema:** XXXX*)
-
+id: requisitos
+title: Levantamento de Requisitos e Caso de Uso
 ---
 
-## **1. Identificação dos Stakeholders**
+# 06 - Levantamento de Requisitos e Caso de Uso
 
-- **Clientes:** Pessoas que....
-- **Restaurantes:** Estabelecimentos...
-- **Entregadores:** Responsáveis...
-- **Administrador:** Gerencia....
+**Sistema:** Sistema de gestão para uma academia de alta performance esportiva
 
----
+## 1. Identificação dos Stakeholders
 
-### **2. Requisitos Funcionais**
+- **Responsável:** Pessoa legalmente responsável por um ou mais alunos. Cria conta, cadastra dependentes, agenda e cancela treinamentos, consulta a evolução dos filhos e recebe comunicados.
+- **Aluno/Atleta:** Criança de 7 a 12 anos matriculada na academia. Não acessa o sistema diretamente, mas é o beneficiário direto dos cadastros e agendamentos feitos pelo responsável.
+- **Profissional (Treinador):** Responsável por ministrar os treinamentos. Consulta sua agenda, acompanha as turmas, registra presença e avaliações físicas/técnicas.
+- **Administrador/Recepção:** Gerencia cadastros de usuários, profissionais, campos, turmas e horários. Acompanha conflitos, cancelamentos e relatórios operacionais.
 
-| ID   | Descrição                                                                    | Prioridade |
-| ---- | ------------------------------------------------------------------------------ | ---------- |
-| RF01 | O cliente... | Alta |
-| RF02 | O restaurante... | Média |
-| RF03 | O entregador... | Alta |
+## 2. Requisitos Funcionais
 
-### **3. Requisitos Não Funcionais**
+| ID | Descrição | Prioridade |
+| --- | --- | --- |
+| RF01 | O sistema deve permitir que o responsável crie uma conta com dados pessoais, contato e credenciais de acesso | Alta |
+| RF02 | O sistema deve permitir login, logout e recuperação de senha | Alta |
+| RF03 | O sistema deve permitir que o responsável cadastre um ou mais alunos vinculados à sua conta | Alta |
+| RF04 | O sistema deve validar automaticamente a idade do aluno (7 a 12 anos) no cadastro | Alta |
+| RF05 | O sistema deve permitir que a administração cadastre profissionais, suas especialidades e disponibilidade | Alta |
+| RF06 | O sistema deve permitir que a administração cadastre campos/espaços com capacidade máxima | Alta |
+| RF07 | O sistema deve permitir que a administração cadastre turmas com modalidade, faixa etária, capacidade, local e profissional responsável | Alta |
+| RF08 | O sistema deve permitir que o responsável agende um treinamento para um aluno, selecionando turma, data e horário disponíveis | Alta |
+| RF09 | O sistema deve validar disponibilidade do aluno, do profissional, do espaço e da turma antes de confirmar um agendamento | Alta |
+| RF10 | O sistema deve bloquear novos agendamentos quando a turma atingir sua capacidade máxima | Alta |
+| RF11 | O sistema deve impedir agendamentos duplicados para o mesmo aluno no mesmo horário | Alta |
+| RF12 | O sistema deve permitir que o responsável consulte a agenda de treinamentos de cada dependente | Alta |
+| RF13 | O sistema deve permitir que o responsável cancele um agendamento dentro do prazo definido pela academia | Alta |
+| RF14 | O sistema deve liberar automaticamente a vaga da turma quando um agendamento for cancelado | Alta |
+| RF15 | O sistema deve bloquear o cancelamento de um agendamento quando estiver fora do prazo mínimo definido pela academia (prazo a definir), salvo autorização da administração | Alta |
+| RF16 | O sistema deve permitir que o profissional consulte sua agenda individual e a lista de alunos de cada turma | Média |
+| RF17 | O sistema deve permitir que o profissional registre presença, ausência e observações de avaliação por treinamento | Média |
+| RF18 | O sistema deve permitir que o responsável consulte a evolução física/técnica de seus dependentes | Média |
+| RF19 | O sistema deve permitir que a administração cancele um treinamento por motivo operacional e identifique os usuários afetados | Média |
+| RF20 | O sistema deve enviar notificações internas sobre criação, alteração ou cancelamento de agendamentos | Média |
+| RF21 | O sistema deve disponibilizar um dashboard com a ocupação das turmas e a disponibilidade dos profissionais | Média |
+| RF22 | O sistema deve permitir fila de espera automática para turmas lotadas | Média |
 
-- **Performance:** O app...
-- **Segurança:** Dados....
-- **Usabilidade:** Interface...
 
----
+## 3. Requisitos Não Funcionais
 
-### **4. Exemplo de Caso de Uso** (Exemplo)
+- **Performance:** O sistema deve validar disponibilidade e responder a um pedido de agendamento em até 2 segundos, mesmo com requisições simultâneas.
+- **Segurança:** O sistema deve proteger dados pessoais e de saúde de menores de idade conforme a LGPD, aplicando controle de acesso por perfil (responsável, profissional, administração) e registrando trilha de auditoria para alterações sensíveis.
+- **Usabilidade:** A interface de agendamento deve ser simples o suficiente para uso por responsáveis sem familiaridade técnica, seguindo o princípio de reduzir atrito identificado no Design Thinking.
+- **Confiabilidade:** O sistema deve garantir que nenhuma sala/turma/profissional seja alocado em conflito de horário, mesmo em caso de concorrência (duas requisições simultâneas).
+- **Disponibilidade:** O sistema deve estar acessível para consulta e agendamento fora do horário comercial, já que os responsáveis podem agendar remotamente a qualquer momento.
 
-#### **UC01 - Realizar Pedido**
+## 4. Casos de Uso
 
-- **Atores:** Cliente, Sistema.
-- **Pré-condição:** Cliente está logado e com localização ativa.
+### UC01 - Agendar Treinamento
+
+- **Atores:** Responsável, Sistema
+- **Pré-condição:** Responsável está autenticado e possui ao menos um aluno cadastrado.
 - **Fluxo Principal:**
-  1. Cliente seleciona um restaurante.
-  2. Cliente adiciona itens ao carrinho.
-  3. Cliente escolhe a forma de pagamento (cartão/PIX).
-  4. Sistema confirma o pedido e notifica o restaurante.
+  1. Responsável seleciona o aluno.
+  2. Responsável escolhe uma turma compatível com a faixa etária do aluno.
+  3. Responsável seleciona data e horário disponíveis.
+  4. Sistema valida disponibilidade do aluno, do profissional, do espaço e da turma.
+  5. Sistema confirma o agendamento e notifica o profissional responsável.
 - **Fluxos Alternativos:**
-  - **FA1:** Pagamento recusado → Sistema sugere nova tentativa ou outro método.
-  - **FA2:** Restaurante indisponível → Sistema recomenda opções similares.
-- **Pós-condição:** Pedido é registrado e entra na fila de preparo.
+  - FA1: Turma lotada → Sistema informa indisponibilidade e sugere outra turma ou horário.
+  - FA2: Conflito de horário para o aluno → Sistema bloqueia o agendamento e exibe o conflito.
+- **Pós-condição:** Agendamento é registrado com status "confirmado" e a vaga da turma é reservada.
 
----
+### UC02 - Cancelar Agendamento
 
-### **5. Protótipo (Exemplo Simplificado)**
+- **Atores:** Responsável, Sistema
+- **Pré-condição:** Existe um agendamento ativo vinculado ao aluno do responsável.
+- **Fluxo Principal:**
+  1. Responsável seleciona o agendamento a ser cancelado.
+  2. Sistema verifica se o cancelamento está dentro do prazo permitido.
+  3. Responsável confirma o cancelamento.
+  4. Sistema atualiza o status do agendamento e libera a vaga da turma.
+- **Fluxos Alternativos:**
+  - FA1: Cancelamento com menos de 8 horas de antecedência → Sistema bloqueia a ação ou exige autorização da administração.
+- **Pós-condição:** Agendamento passa para o status "cancelado" e a vaga fica disponível para outro aluno.
 
-- **Tela de Busca:** Barra de pesquisa + filtros (vegan, rápido, etc.).
-- **Carrinho:** Resumo dos itens + botão "Finalizar Pedido".
+### UC03 - Cadastrar Aluno
 
----
+- **Atores:** Responsável, Sistema
+- **Pré-condição:** Responsável possui conta ativa no sistema.
+- **Fluxo Principal:**
+  1. Responsável informa nome, data de nascimento e dados de contato do aluno.
+  2. Sistema valida se a idade está dentro da faixa aceita pela academia (7 a 12 anos).
+  3. Responsável vincula o aluno à sua conta.
+  4. Sistema confirma o cadastro.
+- **Fluxos Alternativos:**
+  - FA1: Idade fora da faixa aceita → Sistema bloqueia o cadastro e informa o motivo.
+- **Pós-condição:** Aluno é registrado no sistema e vinculado ao responsável.
 
-### **6. Validação**
+## 5. Diagrama de Casos de Uso
 
-- **XXXXX XXX:** Confirmar se o fluxo de atualização é viável.
-- **Teste A/B com Clientes:** Comparar duas versões...
+Diagrama de Caso de Uso (UML) representando os principais atores e funcionalidades do sistema, em **PlantUML**:
 
-
---
-
-### Diagrama de Casos de Uso (Exemplo)
-
-Aqui está o diagrama de **Caso de Uso (UML)** para o cenário de **"Realizar Pedido"** no aplicativo de delivery, usando **PlantUML**:
-
-### **Código PlantUML**:
-
-```puml
-@startuml FastDelivery_CasosDeUso
-
+```
+@startuml AcademiaEsportiva_CasosDeUso
 left to right direction
 skinparam actorStyle awesome
 
-actor Cliente
-actor Restaurante as "Restaurante (Sistema)"
-actor Entregador
+actor Responsavel
+actor Profissional
+actor Administrador
 
-usecase (UC01: Realizar Pedido) as UC01
-usecase (Selecionar Restaurante) as UC01_1
-usecase (Adicionar Itens ao Carrinho) as UC01_2
-usecase (Escolher Pagamento) as UC01_3
-usecase (Confirmar Pedido) as UC01_4
+usecase (UC01: Agendar Treinamento) as UC01
+usecase (UC02: Cancelar Agendamento) as UC02
+usecase (UC03: Cadastrar Aluno) as UC03
+usecase (UC04: Cadastrar Turma) as UC04
+usecase (UC05: Registrar Presenca e Avaliacao) as UC05
+usecase (UC06: Consultar Agenda) as UC06
 
-usecase (Notificar Restaurante) as UC02
-usecase (Notificar Entregador) as UC03
-usecase (Pagamento Recusado) as FA1
-usecase (Restaurante Indisponível) as FA2
+usecase (Turma Lotada) as FA1
+usecase (Conflito de Horario) as FA2
+usecase (Fora do Prazo de Cancelamento) as FA3
 
-Cliente --> UC01
-Cliente --> UC01_1
-Cliente --> UC01_2
-Cliente --> UC01_3
-Cliente --> UC01_4
+Responsavel --> UC01
+Responsavel --> UC02
+Responsavel --> UC03
+Responsavel --> UC06
 
-UC01_4 --> UC02 : <<include>>
-UC02 --> Restaurante
-UC02 --> UC03 : <<extend>>
-UC03 --> Entregador
+Administrador --> UC04
+Administrador --> UC02
 
-FA1 .> UC01_3 : <<extend>>
-FA2 .> UC01_1 : <<extend>>
+Profissional --> UC05
+Profissional --> UC06
+
+FA1 .> UC01 : <<extend>>
+FA2 .> UC01 : <<extend>>
+FA3 .> UC02 : <<extend>>
 
 note right of UC01
-  **Pré-condição**: Cliente logado.
-  **Pós-condição**: Pedido registrado.
+  **Pré-condição**: Responsável logado.
+  **Pós-condição**: Agendamento confirmado.
 end note
 
 @enduml
 ```
 
-### **Explicação**:
-1. **Atores**:
-   - `Cliente`: Interage com o sistema para fazer pedidos.
-   - `Restaurante` (Sistema): Recebe notificações de pedidos.
-   - `Entregador`: Recebe alertas para coleta/entrega.
+**Explicação:**
 
-2. **Fluxo Principal** (dentro do caso de uso `UC01`):
-   - Selecionar Restaurante → Adicionar Itens → Escolher Pagamento → Confirmar Pedido.
+1. **Atores:** Responsável (agenda e cancela), Profissional (registra presença e consulta agenda), Administrador (cadastra turmas e pode cancelar por motivo operacional).
+2. **Fluxo Principal (UC01):** Selecionar aluno → Selecionar turma/horário → Validar disponibilidade → Confirmar agendamento.
+3. **Relacionamentos `<<extend>>`:** Representam os fluxos alternativos identificados nos casos de uso (turma lotada, conflito de horário, cancelamento fora do prazo).
 
-3. **Relacionamentos**:
-   - `<<include>>`: "Confirmar Pedido" **requer** "Notificar Restaurante".
-   - `<<extend>>`: Fluxos alternativos (pagamento recusado/restaurante indisponível).
+## 6. Diagrama de Classes
 
-4. **Notas**: Condições do cenário.
+Diagrama de classes conceitual representando as principais entidades do sistema:
 
----
-
-### Protótipo
-
-Aqui está o protótipo de **telas do aplicativo de delivery** usando **Salt (PlantUML)**, alinhado ao caso de uso anterior:
-
----
-
-### **Código PlantUML (Salt)**
-```plantuml
-@startsalt
-{
-  {^
-    <b>FastDelivery - Buscar Restaurantes</b>
-  }
-  {
-    [🔍 Buscar...] | [Filtros ▼]
-  }
-  {
-    (X) Restaurante A      | ⭐ 4.5
-    () Restaurante B      | ⭐ 4.2
-    () Restaurante C      | ⭐ 4.7
-  }
-  {
-    [Ver Cardápio] | [Voltar]
-  }
-}
-
-@startsalt
-{
-  {^
-    <b>Restaurante A - Cardápio</b>
-  }
-  {
-    (X) Pizza Margherita   | R$ 35.00
-    () Hambúrguer Artesanal | R$ 28.00
-    () Salada Caesar       | R$ 22.00
-  }
-  {
-    [Adicionar ao Carrinho] | [Voltar]
-  }
-}
-
-@startsalt
-{
-  {^
-    <b>Carrinho de Compras</b>
-  }
-  {
-    "Pizza Margherita"  | R$ 35.00
-    "Hambúrguer"       | R$ 28.00
-    "Taxa de Entrega"  | R$ 5.00
-    --------------------------
-    "Total"            | R$ 68.00
-  }
-  {
-    [Continuar para Pagamento] | [Editar]
-  }
-}
-
-@startsalt
-{
-  {^
-    <b>Pagamento</b>
-  }
-  {
-    () Cartão Crédito (•••• 1234)
-    () PIX
-    () Dinheiro na Entrega
-  }
-  {
-    [Finalizar Pedido] | [Cancelar]
-  }
-}
-
-@startsalt
-{
-  {^
-    <b>Pedido Confirmado!</b>
-  }
-  {
-    ! Pedido #1234 recebido!
-    "Tempo estimado:" 30-40 min.
-  }
-  {
-    [Acompanhar Pedido] | [Voltar ao Início]
-  }
-}
 ```
+@startuml AcademiaEsportiva_Classes
 
----
-
-### **Telas Prototipadas (Fluxo do Caso de Uso)**  
-1. **Buscar Restaurantes**:  
-   - Barra de busca + filtros.  
-   - Lista de restaurantes com seleção (radio buttons).  
-
-2. **Cardápio do Restaurante**:  
-   - Itens selecionáveis com preços.  
-   - Botão para adicionar ao carrinho.  
-
-3. **Carrinho**:  
-   - Resumo dos itens + valor total.  
-   - Ação para prosseguir ao pagamento.  
-
-4. **Pagamento**:  
-   - Opções de pagamento (cartão, PIX, dinheiro).  
-   - Confirmação do pedido.  
-
-5. **Confirmação**:  
-   - Feedback de sucesso + tempo de entrega.  
-
----
-
-### **Como Visualizar**  
-- Cole o código em ferramentas como:  
-  - [PlantText](https://www.planttext.com/) (suporte a Salt).  
-  - VS Code com extensão **PlantUML**.  
-
----
-
-### **Exemplo de Saída (Estilizada)**  
-```
-+------------------------------+
-| FastDelivery - Buscar Restaur.|
-+------------------------------+
-| [🔍 Buscar...] | [Filtros ▼]  |
-+------------------------------+
-| (X) Restaurante A | ⭐ 4.5    |
-| () Restaurante B  | ⭐ 4.2    |
-+------------------------------+
-| [Ver Cardápio] | [Voltar]    |
-+------------------------------+
-```
-
----
-
-### **Personalização**  
-- Para adicionar **mais telas** (ex.: login, acompanhamento de entrega):  
-  ```plantuml
-  @startsalt
-  {
-    {^ <b>Login</b> }
-    {
-      "E-mail:"   [               ]
-      "Senha:"   [               ]
-    }
-    {
-      [Entrar] | [Criar Conta]
-    }
-  }
-  ```
-
-  ---
-
-  ### Diagrama de Classe
-
-  Aqui está o **diagrama de classes conceitual** para o sistema de delivery, representando os principais conceitos e seus relacionamentos:
-
-### Diagrama de Classes (PlantUML)
-
-```plantuml
-@startuml FastDelivery_DiagramaClasses
-
-class Cliente {
+class Responsavel {
   - id: String
   - nome: String
   - email: String
-  - localizacao: String
-  + buscarRestaurantes()
-  + fazerPedido()
+  - telefone: String
+  + cadastrarAluno()
+  + agendarTreinamento()
+  + cancelarAgendamento()
 }
 
-class Restaurante {
+class Aluno {
   - id: String
   - nome: String
-  - cardapio: List<Item>
-  - localizacao: String
-  + atualizarCardapio()
-  + confirmarPedido()
-}
-
-class Pedido {
-  - id: String
-  - itens: List<Item>
+  - dataNascimento: Date
   - status: String
-  - valorTotal: Double
-  + calcularTotal()
-  + atualizarStatus()
+  + calcularIdade()
 }
 
-class Item {
+class Profissional {
   - id: String
   - nome: String
-  - preco: Double
-  - categoria: String
+  - especialidade: String
+  + registrarPresenca()
+  + registrarAvaliacao()
 }
 
-class Entregador {
+class Turma {
   - id: String
-  - nome: String
-  - veiculo: String
-  + aceitarPedido()
-  + atualizarLocalizacao()
+  - modalidade: String
+  - faixaEtariaMin: Integer
+  - faixaEtariaMax: Integer
+  - capacidadeMaxima: Integer
+  + verificarDisponibilidade()
 }
 
-class Pagamento {
+class Agendamento {
   - id: String
-  - metodo: String
-  - valor: Double
+  - dataHora: DateTime
   - status: String
-  + processarPagamento()
+  + confirmar()
+  + cancelar()
 }
 
-' Relacionamentos
-Cliente "1" --> "0..*" Pedido
-Restaurante "1" --> "0..*" Pedido
-Pedido "1" --> "1..*" Item
-Pedido "1" --> "1" Pagamento
-Pedido "1" --> "0..1" Entregador
-Restaurante "1" --> "0..*" Item
+Responsavel "1" --> "1..*" Aluno
+Aluno "1" --> "0..*" Agendamento
+Turma "1" --> "0..*" Agendamento
+Profissional "1" --> "0..*" Turma
+Agendamento "0..*" --> "1" Turma
 
 @enduml
 ```
 
-### Explicação:
-1. **Classes Principais**:
-   - **Cliente**: Realiza pedidos e busca restaurantes.
-   - **Restaurante**: Oferece itens do cardápio e confirma pedidos.
-   - **Pedido**: Agrupa itens, calcula total e rastreia status.
-   - **Item**: Produtos individuais do cardápio.
-   - **Entregador**: Responsável pela entrega.
-   - **Pagamento**: Processa transações.
+**Explicação:**
 
-2. **Relacionamentos**:
-   - Um cliente faz **0 ou N** pedidos.
-   - Um pedido contém **1 ou N** itens.
-   - Um restaurante tem **0 ou N** itens no cardápio.
-   - Cada pedido tem **exatamente 1** pagamento.
-   - Um pedido pode estar associado a **0 ou 1** entregador.
+1. **Classes principais:** Responsavel, Aluno, Profissional, Turma e Agendamento.
+2. **Relacionamentos:** Um responsável possui 1 ou mais alunos; um aluno pode ter 0 ou mais agendamentos; uma turma está associada a exatamente um profissional; um agendamento pertence a exatamente uma turma.
 
-3. **Atributos e Métodos**:
-   - Atributos privados (indicados por `-`) e métodos públicos (`+`).
-   - Exemplo: `Pedido.calcularTotal()` soma os preços dos itens.
+## 7. Protótipo (Exemplo Simplificado)
 
----
+Protótipo de telas alinhado ao caso de uso UC01, usando **Salt (PlantUML)**:
 
+```
+@startsalt
+{
+  Tela de Agendamento
+  Aluno: ^Pedro (9 anos)^
+  Turma: ^Iniciação - Ter/Qui 16h^
+  Data: "12/10/2026"
+  [Confirmar Agendamento] | [Cancelar]
+}
+@endsalt
+```
 
----
+```
+@startsalt
+{
+  **Agendamento Confirmado!**
+  Treino de Pedro em 12/10/2026 as 16h
+  Local: Campo 2 - Professor Carlos
+  [Ver Agenda] | [Voltar ao Início]
+}
+@endsalt
+```
 
-### Adaptações Possíveis:
-1. **Adicionar Herança**:
-   ```plantuml
-   class Usuario {
-     - id: String
-     - nome: String
-   }
-   class Cliente {
-     - localizacao: String
-   }
-   class Entregador {
-     - veiculo: String
-   }
-   Usuario <|-- Cliente
-   Usuario <|-- Entregador
-   ```
+**Telas previstas (fluxo do caso de uso UC01):**
 
-2. **Incluir Enums** (ex.: status do pedido):
-   ```plantuml
-   enum StatusPedido {
-     EM_PREPARO
-     EM_TRANSITO
-     ENTREGUE
-   }
-   class Pedido {
-     - status: StatusPedido
-   }
-   ```
+1. **Seleção do aluno:** lista de dependentes vinculados ao responsável.
+2. **Seleção da turma:** turmas compatíveis com a idade do aluno, com horário e vagas.
+3. **Confirmação:** resumo do agendamento (aluno, turma, data, local, profissional).
+4. **Tela de sucesso:** confirmação com opção de ver agenda ou voltar ao início.
 
---- 
+## 8. Validação
 
+- **Prazo de cancelamento:** confirmar com a administração qual o prazo mínimo aceito antes do treino (ex: 2h, 24h).
+- **Teste com usuários:** validar o fluxo de agendamento (UC01) com um responsável real ou representante do perfil, verificando se o fluxo é intuitivo.
 
+## Autor(es)
+
+| Data | Versão | Descrição | Autor(es) |
+| --- | --- | --- | --- |
+| 23/09/2026 | 1.0 | Criação do documento de requisitos | Grupo 2 |
