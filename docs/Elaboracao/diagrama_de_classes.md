@@ -414,8 +414,8 @@ Invariantes que deverão ser implementadas na especificação:
 
 - **Versão**: `v0.1`
 - **Data**: `23/09/2026`
-- **Autor(es)**: `<nome>`
-- **Revisor(es)**: `<nome>`
+- **Autor(es)**: `<Victor Coutinho>`
+- **Revisor(es)**: `<Luiz Fernando, Giovanna Sales, Ricardo Costa>`
 - **Resumo da alteração**: Documentação dos diagramas conceitual e de especificação, com descrições, regras de domínio e tabelas de rastreabilidade baseadas em `levreq.md`.
 
 ### 5) Entregáveis

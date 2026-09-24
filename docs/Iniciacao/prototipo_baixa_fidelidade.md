@@ -251,4 +251,4 @@ Os protótipos representam os principais fluxos identificados no levantamento de
 
 | Data       | Versão | Descrição                                   | Autor(es) |
 | ---------- | ------ | ------------------------------------------- | --------- |
-| 23/09/2026 | 1.0    | Criação dos protótipos de baixa fidelidade. | Grupo 2   |
+| 23/09/2026 | 1.0    | Criação dos protótipos de baixa fidelidade. | Luiz Fernando   |

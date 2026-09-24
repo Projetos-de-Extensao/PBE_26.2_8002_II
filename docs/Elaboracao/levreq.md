@@ -253,4 +253,4 @@ Protótipo de telas alinhado ao caso de uso UC01, usando **Salt (PlantUML)**:
 
 | Data | Versão | Descrição | Autor(es) |
 | --- | --- | --- | --- |
-| 23/09/2026 | 1.0 | Criação do documento de requisitos | Grupo 2 |
+| 23/09/2026 | 1.0 | Criação do documento de requisitos | Ricardo Costa |
