@@ -62,7 +62,7 @@ Componente central para visualização e manipulação de agendamentos com supor
 
 #### 2.2.1 Descrição
 
-Gerenciamento dos espaços físicos (sala de avaliação, pista de corrida, piscina) para evitar conflitos de uso e controlar capacidade.
+Gerenciamento dos espaços físicos para evitar conflitos de uso e controlar capacidade.
 
 #### 2.2.2 Requisitos Funcionais
 
