@@ -12,7 +12,7 @@ h3,
 h4,
 h5,
 h6 {
-  color: var(--md-primary-fg-color);
+  color: var(--md-primary-bg-color);
 
 }
 
@@ -68,12 +68,16 @@ h6 {
 }
 
 .module-card {
-    background: #ffffff;
+    background: var(--md-primary-fg-color--dark);
     border: 1px solid #e0e0e0;
     padding: 25px;
-    border-radius: 8px;
+    border-radius: 12px;
     transition: all 0.3s ease;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.module-card p {
+  color: white;
 }
 
 .module-card:hover {
@@ -84,8 +88,10 @@ h6 {
 /* Specific adjustments for header vs content */
 .card-header {
     margin-bottom: 15px;
+    color: var(--md-primary-bg-color);
     font-size: 1.4em; /* Or use an H3 tag instead of raw markdown rendering */
 }
+
 
 .contributors {
     color: #666;
