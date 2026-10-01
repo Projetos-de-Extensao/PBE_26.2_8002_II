@@ -43,7 +43,7 @@ O modelo contempla as principais entidades identificadas nos requisitos, sem inc
 - **Perfis de acesso**: `Usuario`, `Responsavel`, `Profissional` e `Administrador`;
 - **Cadastro**: `Aluno` e `Sala`;
 - **Agendamento e treinamento**: `Turma`, `Agendamento` e `RegistroTreinamento`;
-- **Controle complementar**: `FilaEspera` e `Notificacao`.
+- **Pagamentos e controle complementar**: `Pagamento`, `FilaEspera` e `Notificacao`.
 
 O diagrama representa generalização entre `Usuario` e os perfis de acesso, além das multiplicidades das associações. As entidades apresentadas são as principais do problema; portanto, o modelo não pretende representar todas as entidades possíveis do sistema.
 
@@ -98,6 +98,8 @@ skinparam packageStyle rectangle
 
 	class RegistroTreinamento
 
+	class Pagamento
+
 ' =========================================================
 ' CONTROLE COMPLEMENTAR
 ' =========================================================
@@ -122,6 +124,8 @@ Sala "1" -- "0..*" Turma : utiliza
 
 Agendamento "1" -- "0..1" RegistroTreinamento : gera
 
+Agendamento "1" -- "0..1" Pagamento : possui
+
 Aluno "1" -- "0..*" FilaEspera : participa
 
 Turma "1" -- "0..*" FilaEspera : possui
@@ -135,19 +139,20 @@ Agendamento "1" -- "0..*" Notificacao : origina
 
 #### 1.5 Descrição das classes e regras de domínio
 
-| Classe                | Descrição e responsabilidade no domínio                                                                                           |
-| --------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
-| `Usuario`             | Conceito geral de usuário do sistema, especializado pelos perfis de acesso.                                                       |
-| `Responsavel`         | Pessoa legalmente responsável por um ou mais alunos; cadastra dependentes, agenda e cancela treinamentos e consulta sua evolução. |
-| `Profissional`        | Treinador que ministra turmas, consulta sua agenda e registra presença e avaliações.                                              |
-| `Administrador`       | Perfil responsável pela gestão de profissionais, salas, turmas, horários, conflitos e cancelamentos operacionais.                 |
-| `Aluno`               | Criança ou atleta entre 7 e 12 anos, vinculada a um responsável e beneficiária dos agendamentos e registros de treinamento.       |
-| `Sala`                | Espaço ou campo utilizado por uma turma, sujeito a capacidade e disponibilidade.                                                  |
-| `Turma`               | Grupo de treinamento com modalidade, faixa etária, capacidade, sala, horário e profissional responsável.                          |
-| `Agendamento`         | Reserva de um treinamento para um aluno em uma turma, com data, horário e status.                                                 |
-| `RegistroTreinamento` | Registro associado ao treinamento para presença, ausência e observações de avaliação.                                             |
-| `FilaEspera`          | Participação de um aluno na fila de uma turma lotada.                                                                             |
-| `Notificacao`         | Comunicação recebida por usuários sobre criação, alteração ou cancelamento de agendamentos.                                       |
+| Classe                | Descrição e responsabilidade no domínio                                                                                                         |
+| --------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Usuario`             | Conceito geral de usuário do sistema, especializado pelos perfis de acesso.                                                                     |
+| `Responsavel`         | Pessoa legalmente responsável por um ou mais alunos; cadastra dependentes, agenda e cancela treinamentos e consulta sua evolução.               |
+| `Profissional`        | Treinador que ministra turmas, consulta sua agenda e registra presença e avaliações.                                                            |
+| `Administrador`       | Perfil responsável pela gestão de profissionais, salas, turmas, horários, conflitos e cancelamentos operacionais.                               |
+| `Aluno`               | Criança ou atleta entre 7 e 12 anos, vinculada a um responsável e beneficiária dos agendamentos e registros de treinamento.                     |
+| `Sala`                | Espaço ou campo utilizado por uma turma, sujeito a capacidade e disponibilidade.                                                                |
+| `Turma`               | Grupo de treinamento com modalidade, faixa etária, capacidade, sala, horário e profissional responsável.                                        |
+| `Agendamento`         | Reserva de um treinamento para um aluno em uma turma, com data, horário e status.                                                               |
+| `RegistroTreinamento` | Registro associado ao treinamento para presença, ausência e observações de avaliação.                                                           |
+| `Pagamento`           | Registro da tentativa de cobrança do agendamento, com identificador externo, valor, status e data; o processamento é realizado pela API mobile. |
+| `FilaEspera`          | Participação de um aluno na fila de uma turma lotada.                                                                                           |
+| `Notificacao`         | Comunicação recebida por usuários sobre criação, alteração ou cancelamento de agendamentos.                                                     |
 
 Regras de negócio representadas ou derivadas dos requisitos:
 
@@ -157,6 +162,7 @@ Regras de negócio representadas ou derivadas dos requisitos:
 - Um agendamento pode gerar no máximo um `RegistroTreinamento`; a presença e as avaliações são registradas pelo profissional (`RF17`).
 - Alunos podem participar da `FilaEspera` de turmas lotadas (`RF10`, `RF22`).
 - `Notificacao` é originada por um agendamento e recebida por um usuário (`RF20`).
+- `Pagamento` pertence a um agendamento e registra apenas os dados retornados pela API mobile; dados sensíveis do meio de pagamento não fazem parte do domínio do backend (`RF23`–`RF27`).
 
 #### 1.6 Rastreabilidade
 
@@ -173,6 +179,7 @@ Regras de negócio representadas ou derivadas dos requisitos:
 | `RegistroTreinamento` | RF17, RF18                               | UC05                   | Não especificada no protótipo          |
 | `FilaEspera`          | RF10, RF14, RF22                         | UC01                   | Seleção da turma                       |
 | `Notificacao`         | RF19, RF20                               | UC01, UC02             | Tela de sucesso                        |
+| `Pagamento`           | RF23–RF27                                | UC01, UC07             | Tela de pagamento e confirmação        |
 
 #### 1.7 Critérios de validação
 
@@ -325,6 +332,18 @@ skinparam packageStyle rectangle
 		+ registrarAvaliacao()
 	}
 
+	class Pagamento {
+		- id: String
+		- idTransacaoExterna: String
+		- valor: Decimal
+		- status: String
+		- dataTentativa: DateTime
+
+		+ solicitar()
+		+ atualizarStatus()
+		+ validarAprovacao()
+	}
+
 ' =========================================================
 ' CONTROLE COMPLEMENTAR
 ' =========================================================
@@ -364,6 +383,8 @@ Profissional "1" -- "0..*" Turma : ministra
 Sala "1" -- "0..*" Turma : utiliza
 
 Agendamento " 1" -- "0..1" RegistroTreinamento : gera
+
+Agendamento "1" -- "0..1" Pagamento : possui
 
 Aluno "1" -- "0..*" FilaEspera : participa
 
@@ -434,3 +455,11 @@ Invariantes que deverão ser implementadas na especificação:
 | Rastreabilidade                        | Preenchida com requisitos, casos de uso e telas descritas em `levreq.md` |
 | Atributos e operações da especificação | Validados contra a fonte PlantUML recebida                               |
 | Revisão com equipe e stakeholders      | Pendente de realização                                                   |
+
+#### Complemento de pagamento
+
+| Classe      | Requisitos | Casos de uso | Regra principal                                                                                               |
+| ----------- | ---------- | ------------ | ------------------------------------------------------------------------------------------------------------- |
+| `Pagamento` | RF23–RF27  | UC01 e UC07  | Confirma o agendamento somente com status **"aprovado"** e não armazena dados sensíveis do meio de pagamento. |
+
+O `Pagamento` mantém o identificador externo, valor, status e data da tentativa retornados pela API mobile. A API mobile é o sistema responsável pelo processamento financeiro; o backend realiza a integração, a rastreabilidade e a atualização do agendamento.

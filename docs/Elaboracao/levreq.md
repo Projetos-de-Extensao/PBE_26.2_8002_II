@@ -16,31 +16,35 @@ title: Levantamento de Requisitos e Caso de Uso
 
 ## 2. Requisitos Funcionais
 
-| ID | Descrição | Prioridade |
-| --- | --- | --- |
-| RF01 | O sistema deve permitir que o responsável crie uma conta com dados pessoais, contato e credenciais de acesso | Alta |
-| RF02 | O sistema deve permitir login, logout e recuperação de senha | Alta |
-| RF03 | O sistema deve permitir que o responsável cadastre um ou mais alunos vinculados à sua conta | Alta |
-| RF04 | O sistema deve validar automaticamente a idade do aluno (7 a 12 anos) no cadastro | Alta |
-| RF05 | O sistema deve permitir que a administração cadastre profissionais, suas especialidades e disponibilidade | Alta |
-| RF06 | O sistema deve permitir que a administração cadastre campos/espaços com capacidade máxima | Alta |
-| RF07 | O sistema deve permitir que a administração cadastre turmas com modalidade, faixa etária, capacidade, local e profissional responsável | Alta |
-| RF08 | O sistema deve permitir que o responsável agende um treinamento para um aluno, selecionando turma, data e horário disponíveis | Alta |
-| RF09 | O sistema deve validar disponibilidade do aluno, do profissional, do espaço e da turma antes de confirmar um agendamento | Alta |
-| RF10 | O sistema deve bloquear novos agendamentos quando a turma atingir sua capacidade máxima | Alta |
-| RF11 | O sistema deve impedir agendamentos duplicados para o mesmo aluno no mesmo horário | Alta |
-| RF12 | O sistema deve permitir que o responsável consulte a agenda de treinamentos de cada dependente | Alta |
-| RF13 | O sistema deve permitir que o responsável cancele um agendamento dentro do prazo definido pela academia | Alta |
-| RF14 | O sistema deve liberar automaticamente a vaga da turma quando um agendamento for cancelado | Alta |
-| RF15 | O sistema deve bloquear o cancelamento de um agendamento quando estiver fora do prazo mínimo definido pela academia (prazo a definir), salvo autorização da administração | Alta |
-| RF16 | O sistema deve permitir que o profissional consulte sua agenda individual e a lista de alunos de cada turma | Média |
-| RF17 | O sistema deve permitir que o profissional registre presença, ausência e observações de avaliação por treinamento | Média |
-| RF18 | O sistema deve permitir que o responsável consulte a evolução física/técnica de seus dependentes | Média |
-| RF19 | O sistema deve permitir que a administração cancele um treinamento por motivo operacional e identifique os usuários afetados | Média |
-| RF20 | O sistema deve enviar notificações internas sobre criação, alteração ou cancelamento de agendamentos | Média |
-| RF21 | O sistema deve disponibilizar um dashboard com a ocupação das turmas e a disponibilidade dos profissionais | Média |
-| RF22 | O sistema deve permitir fila de espera automática para turmas lotadas | Média |
-
+| ID   | Descrição                                                                                                                                                                 | Prioridade |
+| ---- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------- |
+| RF01 | O sistema deve permitir que o responsável crie uma conta com dados pessoais, contato e credenciais de acesso                                                              | Alta       |
+| RF02 | O sistema deve permitir login, logout e recuperação de senha                                                                                                              | Alta       |
+| RF03 | O sistema deve permitir que o responsável cadastre um ou mais alunos vinculados à sua conta                                                                               | Alta       |
+| RF04 | O sistema deve validar automaticamente a idade do aluno (7 a 12 anos) no cadastro                                                                                         | Alta       |
+| RF05 | O sistema deve permitir que a administração cadastre profissionais, suas especialidades e disponibilidade                                                                 | Alta       |
+| RF06 | O sistema deve permitir que a administração cadastre campos/espaços com capacidade máxima                                                                                 | Alta       |
+| RF07 | O sistema deve permitir que a administração cadastre turmas com modalidade, faixa etária, capacidade, local e profissional responsável                                    | Alta       |
+| RF08 | O sistema deve permitir que o responsável agende um treinamento para um aluno, selecionando turma, data e horário disponíveis                                             | Alta       |
+| RF09 | O sistema deve validar disponibilidade do aluno, do profissional, do espaço e da turma antes de confirmar um agendamento                                                  | Alta       |
+| RF10 | O sistema deve bloquear novos agendamentos quando a turma atingir sua capacidade máxima                                                                                   | Alta       |
+| RF11 | O sistema deve impedir agendamentos duplicados para o mesmo aluno no mesmo horário                                                                                        | Alta       |
+| RF12 | O sistema deve permitir que o responsável consulte a agenda de treinamentos de cada dependente                                                                            | Alta       |
+| RF13 | O sistema deve permitir que o responsável cancele um agendamento dentro do prazo definido pela academia                                                                   | Alta       |
+| RF14 | O sistema deve liberar automaticamente a vaga da turma quando um agendamento for cancelado                                                                                | Alta       |
+| RF15 | O sistema deve bloquear o cancelamento de um agendamento quando estiver fora do prazo mínimo definido pela academia (prazo a definir), salvo autorização da administração | Alta       |
+| RF16 | O sistema deve permitir que o profissional consulte sua agenda individual e a lista de alunos de cada turma                                                               | Média      |
+| RF17 | O sistema deve permitir que o profissional registre presença, ausência e observações de avaliação por treinamento                                                         | Média      |
+| RF18 | O sistema deve permitir que o responsável consulte a evolução física/técnica de seus dependentes                                                                          | Média      |
+| RF19 | O sistema deve permitir que a administração cancele um treinamento por motivo operacional e identifique os usuários afetados                                              | Média      |
+| RF20 | O sistema deve enviar notificações internas sobre criação, alteração ou cancelamento de agendamentos                                                                      | Média      |
+| RF21 | O sistema deve disponibilizar um dashboard com a ocupação das turmas e a disponibilidade dos profissionais                                                                | Média      |
+| RF22 | O sistema deve permitir fila de espera automática para turmas lotadas                                                                                                     | Média      |
+| RF23 | O sistema deve solicitar o pagamento por meio da API de pagamentos fornecida pela equipe mobile antes de confirmar um agendamento que exija cobrança                      | Alta       |
+| RF24 | O sistema deve registrar o identificador da transação, o valor, o status e a data da tentativa de pagamento retornados pela API de pagamentos                             | Alta       |
+| RF25 | O sistema deve confirmar o agendamento somente quando a API de pagamentos retornar pagamento aprovado                                                                     | Alta       |
+| RF26 | O sistema deve informar ao responsável quando o pagamento estiver pendente, for recusado ou apresentar erro, sem reservar definitivamente a vaga                          | Alta       |
+| RF27 | O sistema não deve armazenar dados sensíveis do meio de pagamento, delegando seu processamento à API de pagamentos mobile                                                 | Alta       |
 
 ## 3. Requisitos Não Funcionais
 
@@ -49,6 +53,8 @@ title: Levantamento de Requisitos e Caso de Uso
 - **Usabilidade:** A interface de agendamento deve ser simples o suficiente para uso por responsáveis sem familiaridade técnica, seguindo o princípio de reduzir atrito identificado no Design Thinking.
 - **Confiabilidade:** O sistema deve garantir que nenhuma sala/turma/profissional seja alocado em conflito de horário, mesmo em caso de concorrência (duas requisições simultâneas).
 - **Disponibilidade:** O sistema deve estar acessível para consulta e agendamento fora do horário comercial, já que os responsáveis podem agendar remotamente a qualquer momento.
+- **Integração:** O backend deve consumir a API de pagamentos mobile por meio de contrato documentado, com autenticação, timeout, tratamento de indisponibilidade e registro das respostas.
+- **Segurança financeira:** O backend não deve receber nem persistir número de cartão, código de segurança ou outros dados sensíveis do meio de pagamento; deve armazenar apenas os dados necessários para rastreabilidade da transação.
 
 ## 4. Casos de Uso
 
@@ -61,11 +67,34 @@ title: Levantamento de Requisitos e Caso de Uso
   2. Responsável escolhe uma turma compatível com a faixa etária do aluno.
   3. Responsável seleciona data e horário disponíveis.
   4. Sistema valida disponibilidade do aluno, do profissional, do espaço e da turma.
-  5. Sistema confirma o agendamento e notifica o profissional responsável.
+  5. Sistema solicita o pagamento à API de pagamentos mobile, quando houver cobrança.
+  6. API de pagamentos retorna o status da transação.
+  7. Sistema confirma o agendamento somente após o pagamento aprovado e notifica o profissional responsável.
 - **Fluxos Alternativos:**
   - FA1: Turma lotada → Sistema informa indisponibilidade e sugere outra turma ou horário.
   - FA2: Conflito de horário para o aluno → Sistema bloqueia o agendamento e exibe o conflito.
+  - FA3: Pagamento recusado ou com erro → Sistema não confirma o agendamento, informa o motivo disponível e permite nova tentativa.
+  - FA4: API de pagamentos indisponível ou sem resposta → Sistema mantém a solicitação pendente, não reserva definitivamente a vaga e orienta o responsável a tentar novamente.
 - **Pós-condição:** Agendamento é registrado com status "confirmado" e a vaga da turma é reservada.
+
+### UC07 - Processar Pagamento
+
+- **Atores:** Responsável, Sistema, API de pagamentos mobile
+- **Pré-condição:** Responsável autenticado, aluno e treinamento selecionados e dados do agendamento validados.
+- **Fluxo Principal:**
+  1. Sistema apresenta o valor e as condições da cobrança ao responsável.
+  2. Responsável confirma o início do pagamento.
+  3. Sistema envia à API de pagamentos mobile somente os dados necessários da cobrança e uma referência do agendamento.
+  4. API de pagamentos processa a transação e retorna seu identificador e status.
+  5. Sistema registra o retorno da API sem armazenar dados sensíveis do meio de pagamento.
+  6. Sistema confirma o agendamento quando o status for aprovado.
+- **Fluxos Alternativos:**
+  - FA1: Pagamento recusado → Sistema registra a tentativa, informa a recusa e mantém o agendamento não confirmado.
+  - FA2: Pagamento pendente → Sistema registra o status pendente e aguarda nova consulta ou atualização da API.
+  - FA3: Falha de comunicação → Sistema registra o erro técnico, não confirma o agendamento e permite nova tentativa sem duplicar a cobrança.
+- **Pós-condição:** Transação registrada com status correspondente ao retorno da API; agendamento confirmado somente no status aprovado.
+- **Regras de negócio:** A API mobile é responsável pelo processamento financeiro; o backend é responsável pela orquestração, rastreabilidade e atualização do agendamento.
+- **Requisitos relacionados:** RF23, RF24, RF25, RF26 e RF27.
 
 ### UC02 - Cancelar Agendamento
 
@@ -251,6 +280,6 @@ Protótipo de telas alinhado ao caso de uso UC01, usando **Salt (PlantUML)**:
 
 ## Autor(es)
 
-| Data | Versão | Descrição | Autor(es) |
-| --- | --- | --- | --- |
-| 23/09/2026 | 1.0 | Criação do documento de requisitos | Ricardo Costa |
+| Data       | Versão | Descrição                          | Autor(es)     |
+| ---------- | ------ | ---------------------------------- | ------------- |
+| 23/09/2026 | 1.0    | Criação do documento de requisitos | Ricardo Costa |

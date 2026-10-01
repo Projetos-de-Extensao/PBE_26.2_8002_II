@@ -126,6 +126,15 @@ O sistema deverá aplicar o princípio do menor privilégio: cada perfil acessa 
 - Visão de alunos ativos, afastados e inativos.
 - Relatórios básicos para apoiar a gestão, sem transformar o brainstorm em uma definição fechada de escopo.
 
+### 11. Como será tratado o pagamento?
+
+- O backend deverá consumir a API de pagamentos criada pela equipe mobile.
+- Cada tentativa deverá ser vinculada a um agendamento por um identificador único.
+- Os estados mínimo esperados são aprovado, pendente, recusado e erro.
+- O agendamento só deverá ser confirmado após aprovação da API.
+- O backend não deverá armazenar dados sensíveis do meio de pagamento.
+- O contrato da API, a autenticação, a idempotência e a atualização de pagamentos pendentes deverão ser validados com a equipe mobile.
+
 ## Organização inicial das ideias
 
 As ideias levantadas foram agrupadas nos seguintes módulos para orientar a próxima etapa de análise:

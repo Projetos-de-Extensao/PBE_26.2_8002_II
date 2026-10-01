@@ -118,3 +118,9 @@ Gestão de preparadores físicos, fisioterapeutas e avaliadores, garantindo que 
 - **Gestão de Dependentes:** Conta principal gerenciando múltiplos perfis secundários (ex.: pai com 2 filhos).
 - **Filtros Cruzados:** Busca simultânea por data, atividade e profissional.
 - **Registro de Evolução:** Espaço para professor registrar desempenho físico e técnico pós-treino.
+
+## 4. Integração de pagamentos
+
+O pagamento será uma integração entre o backend da academia e uma API desenvolvida pela equipe mobile. O backend deve criar a solicitação vinculada ao agendamento, consultar ou receber o status da transação e atualizar o agendamento; não deve criar um gateway próprio nem armazenar dados sensíveis do meio de pagamento.
+
+Requisitos derivados: registrar identificador externo, valor, status e data; confirmar o agendamento somente após retorno **aprovado**; tratar os estados **pendente**, **recusado** e **erro/indisponível**; e definir com a equipe mobile o contrato, a autenticação, o timeout, a idempotência e a atualização do status.

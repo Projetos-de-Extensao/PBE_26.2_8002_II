@@ -236,10 +236,42 @@ O relatório consolida os dados da sessão concluída, incluindo turma, sala, pr
 
 **Relação com os requisitos:** consolida os registros de presença e avaliações do RF17, fornecendo informações que podem ser consultadas pelo responsável conforme o RF18. O envio do resumo representa uma notificação interna relacionada ao RF20, enquanto a visão da sessão auxilia a administração no acompanhamento de cancelamentos e ocorrências do RF19.
 
+## 8. Pagamento do treinamento
+
+**Perfil:** Responsável
+**Requisitos relacionados:** RF23, RF24, RF25, RF26 e RF27
+**Caso de uso:** UC07
+
+Após a validação do agendamento, o responsável visualiza o valor e confirma o pagamento. A tela não coleta nem exibe dados financeiros sensíveis no backend; o processamento é realizado pela API fornecida pela equipe mobile.
+
+```plantuml
+@startsalt
+{
+  <b>PAGAMENTO DO TREINAMENTO
+  Confirmação do agendamento de Pedro
+  ==
+  Turma: | ^Preparação Física - Sub-9^
+  Data:  | "23/09/2026 - 14:00"
+  Valor: | "R$ 80,00"
+  Status:| ^Aguardando pagamento^
+  ==
+  [  PAGAR  ] | [ Voltar ]
+}
+@endsalt
+```
+
+**Estados da tela:**
+
+- **Aprovado:** o sistema confirma o agendamento, reserva a vaga e exibe o identificador da transação.
+- **Pendente:** o sistema informa que aguarda retorno da API e não confirma definitivamente a vaga.
+- **Recusado ou erro:** o sistema informa a falha e permite nova tentativa sem armazenar os dados do meio de pagamento.
+
+**Relação com os requisitos:** o fluxo atende à integração prevista nos RF23 a RF27 e ao UC07. O backend registra somente identificador, valor, status e data retornados pela API mobile.
+
 ## Conclusão
 
 <p align="justify">
-Os protótipos representam os principais fluxos identificados no levantamento de requisitos: autenticação, cadastro de dependentes, configuração da infraestrutura, consulta da agenda, acompanhamento da evolução e consolidação dos treinamentos. Por serem protótipos de baixa fidelidade, as telas concentram-se na hierarquia das informações e nas ações essenciais; detalhes visuais, identidade da marca e validações de interação deverão ser definidos nas próximas versões.
+Os protótipos representam os principais fluxos identificados no levantamento de requisitos: autenticação, cadastro de dependentes, configuração da infraestrutura, consulta da agenda, pagamento via API mobile, acompanhamento da evolução e consolidação dos treinamentos. Por serem protótipos de baixa fidelidade, as telas concentram-se na hierarquia das informações e nas ações essenciais; detalhes visuais, identidade da marca e validações de interação deverão ser definidos nas próximas versões.
 </p>
 
 ## Referências
@@ -249,6 +281,6 @@ Os protótipos representam os principais fluxos identificados no levantamento de
 
 ## Autor(es)
 
-| Data       | Versão | Descrição                                   | Autor(es) |
-| ---------- | ------ | ------------------------------------------- | --------- |
-| 23/09/2026 | 1.0    | Criação dos protótipos de baixa fidelidade. | Luiz Fernando   |
+| Data       | Versão | Descrição                                   | Autor(es)     |
+| ---------- | ------ | ------------------------------------------- | ------------- |
+| 23/09/2026 | 1.0    | Criação dos protótipos de baixa fidelidade. | Luiz Fernando |

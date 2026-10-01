@@ -53,6 +53,7 @@ Durante a análise do contexto, foram identificadas as seguintes necessidades:
 - **Cancelamentos de última hora:** prejudicam o planejamento dos exercícios, pois o treinador organiza o treino para uma quantidade de atletas diferente da quantidade presente.
 - **Agendamentos incorretos:** podem colocar uma criança de 7 anos em uma turma avançada destinada a atletas de 11 ou 12 anos.
 - **Falhas de comunicação:** o profissional pode não ser avisado a tempo quando um aluno é adicionado ou removido de sua turma.
+- **Pagamento sem retorno claro:** o responsável pode não saber se a cobrança foi aprovada, ficou pendente ou falhou.
 - **Dependência de processos manuais:** planilhas e mensagens descentralizadas dificultam a atualização das informações.
 - **Acesso inadequado a dados:** informações pessoais, médicas ou financeiras podem ser visualizadas por pessoas sem autorização.
 
@@ -80,6 +81,7 @@ A solução deverá considerar principalmente:
 - Cancelamento e reagendamento com prazos definidos;
 - Relatórios de evolução técnica e física;
 - Indicadores operacionais e financeiros, quando aplicável;
+- Pagamento de treinamentos por integração com a API da equipe mobile, quando aplicável;
 - Proteção rigorosa dos dados pessoais e sensíveis.
 
 #### 3.2.4 Objetivo da solução
@@ -132,6 +134,13 @@ Gerar e organizar possíveis soluções para os problemas identificados, traduzi
 - Gerenciar usuários, alunos, responsáveis, profissionais, espaços e turmas;
 - Acompanhar cancelamentos, faltas e conflitos de agenda;
 - Avaliar o controle de mensalidades e de inadimplência em uma etapa posterior.
+
+##### Pagamentos
+
+- Consumir a API de pagamentos criada pela equipe mobile;
+- Vincular cada solicitação ao agendamento por uma referência única;
+- Exibir os estados aprovado, pendente, recusado e erro;
+- Manter no backend apenas dados de rastreabilidade, sem dados sensíveis do meio de pagamento.
 
 #### 3.3.3 Priorização inicial
 

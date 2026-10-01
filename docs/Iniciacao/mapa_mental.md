@@ -31,7 +31,7 @@ O centro do mapa é o **Sistema para academia de alta perfomance**. A leitura pa
 
 ```plantuml
 @startmindmap
-left to right direction 
+left to right direction
 skinparam monochrome false
 skinparam backgroundColor #FFFFFF
 skinparam ArrowColor #2F5D50
@@ -95,6 +95,11 @@ skinparam NodeFontColor #263238
 **** Confirmações e alterações de agendamento
 **** Inclusão ou remoção de aluno na turma
 **** Cancelamento pela academia
+*** Pagamentos
+**** API de pagamentos fornecida pela equipe mobile
+**** Solicitação vinculada ao agendamento
+**** Estados: aprovado, pendente, recusado e erro
+**** Backend sem dados sensíveis do meio de pagamento
 
 ** Administração e indicadores
 *** Dashboard operacional
@@ -133,6 +138,6 @@ O mapa organiza a proposta do projeto em uma visão única: a academia precisa d
 
 ## Versionamento
 
-| Data       | Versão | Descrição                                            | Autor(es) |
-| ---------- | ------ | ---------------------------------------------------- | --------- |
-| 13/09/2026 | 1.0    | Criação do mapa mental geral da proposta do sistema. | Luiz Fernando  |
+| Data       | Versão | Descrição                                            | Autor(es)     |
+| ---------- | ------ | ---------------------------------------------------- | ------------- |
+| 13/09/2026 | 1.0    | Criação do mapa mental geral da proposta do sistema. | Luiz Fernando |

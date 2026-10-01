@@ -186,7 +186,27 @@ Permitir que o responsável agende um treinamento para um aluno vinculado à sua
 
 ## 1.9 Requisitos Relacionados
 
-**RF08, RF09, RF10, RF11, RF20 e RF22.**
+**RF08, RF09, RF10, RF11, RF20, RF22, RF23, RF24, RF25, RF26 e RF27.**
+
+## 1.10 Pagamento do agendamento
+
+Quando o treinamento exigir cobrança, o UC01 inclui o processamento de pagamento antes da confirmação definitiva. O backend não implementa um gateway próprio: envia a cobrança à API de pagamentos criada pela equipe mobile, registra o identificador e o status retornados e confirma a vaga somente após aprovação.
+
+### Fluxo de pagamento
+
+1. O sistema apresenta o valor da cobrança ao responsável.
+2. O responsável confirma o pagamento.
+3. O backend envia à API mobile a referência do agendamento, o valor e os dados não sensíveis necessários à operação.
+4. A API retorna o identificador e o status da transação.
+5. O backend registra o retorno e atualiza o pagamento.
+6. O agendamento é confirmado apenas com status **"aprovado"**.
+
+### Exceções
+
+- **Pagamento recusado:** o agendamento permanece não confirmado e o responsável pode tentar novamente.
+- **Pagamento pendente:** a solicitação permanece pendente até nova atualização da API.
+- **API indisponível ou erro de comunicação:** o sistema informa a falha, não confirma a vaga e evita duplicar a cobrança em uma nova tentativa.
+- O backend nunca armazena número de cartão, código de segurança ou outro dado sensível do meio de pagamento.
 
 ---
 
@@ -566,7 +586,52 @@ Permitir que usuários autorizados consultem os treinamentos e agendamentos rela
 
 ---
 
-# 7. Tabela de Rastreabilidade dos Casos de Uso
+# 7. UC07 - Processar Pagamento
+
+## 7.1 Identificação
+
+**ID:** UC07
+**Nome:** Processar Pagamento
+**Atores:** Responsável, Sistema, API de pagamentos mobile
+
+## 7.2 Objetivo
+
+Processar a cobrança de um agendamento por meio da API fornecida pela equipe mobile, sem criar ou armazenar dados financeiros sensíveis no backend.
+
+## 7.3 Pré-condições
+
+- O responsável está autenticado.
+- O aluno, a turma e o horário foram validados.
+- Existe uma referência de agendamento e um valor de cobrança.
+
+## 7.4 Fluxo principal
+
+1. Sistema cria uma solicitação de pagamento vinculada ao agendamento.
+2. Sistema encaminha a solicitação à API mobile.
+3. API mobile processa a transação.
+4. API mobile retorna identificador, status, valor e data da tentativa.
+5. Sistema registra a resposta.
+6. Sistema confirma o agendamento somente se o status for **"aprovado"**.
+
+## 7.5 Fluxos alternativos
+
+- **Pagamento recusado:** registra a tentativa e mantém o agendamento não confirmado.
+- **Pagamento pendente:** mantém o status pendente e aguarda atualização posterior.
+- **Erro ou timeout:** registra a falha técnica e permite nova tentativa sem duplicar a solicitação.
+
+## 7.6 Regras de negócio
+
+- O processamento financeiro pertence à API mobile.
+- O backend deve enviar apenas dados necessários à cobrança e à correlação com o agendamento.
+- O backend deve armazenar somente identificador, valor, status, data e mensagens técnicas necessárias à auditoria.
+
+## 7.7 Requisitos relacionados
+
+**RF23, RF24, RF25, RF26 e RF27.**
+
+---
+
+# 8. Tabela de Rastreabilidade dos Casos de Uso
 
 | Caso de Uso                               | Funcionalidade Principal          | Atores                              | Requisitos                         |
 | ----------------------------------------- | --------------------------------- | ----------------------------------- | ---------------------------------- |
@@ -576,17 +641,25 @@ Permitir que usuários autorizados consultem os treinamentos e agendamentos rela
 | **UC04 – Cadastrar Turma**                | Cadastro e configuração de turmas | Administrador, Sistema              | RF07, RF09, RF10, RF16, RF21       |
 | **UC05 – Registrar Presença e Avaliação** | Registro do treinamento           | Profissional, Sistema               | RF16, RF17, RF18                   |
 | **UC06 – Consultar Agenda**               | Consulta de treinamentos          | Responsável, Profissional, Sistema  | RF12, RF16                         |
+| **UC07 – Processar Pagamento**            | Pagamento via API mobile          | Responsável, Sistema, API mobile    | RF23, RF24, RF25, RF26, RF27       |
 
 ---
 
-# 8. Relações entre os Casos de Uso
+# 9. Relações entre os Casos de Uso
 
 ## UC01 – Agendar Treinamento
 
 `Agendar Treinamento`  
 → `<<include>>` **Validar Disponibilidade**  
 → `<<include>>` **Verificar Capacidade da Turma**  
+→ `<<include>>` **Processar Pagamento**, quando houver cobrança
 → `<<extend>>` **Entrar na Fila de Espera**
+
+## UC07 – Processar Pagamento
+
+`Processar Pagamento`
+→ interage com a **API de pagamentos mobile**
+→ `<<include>>` **Registrar Status da Transação**
 
 ## UC02 – Cancelar Agendamento
 
@@ -767,4 +840,3 @@ UC06P ..> VisualizarAlunos : <<include>>
 
 @enduml
 ```
-
