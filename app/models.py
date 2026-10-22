@@ -2,7 +2,6 @@ from datetime import date
 
 from django.db import models
 
-
 class Sala(models.Model):
     id = models.TextField().primary_key
     nome = models.CharField(max_length=100)
@@ -17,6 +16,9 @@ class Aluno(models.Model):
     data_nascimento = models.DateField()
     responsavel = models.CharField(max_length=100)
     ativo = models.BooleanField(default=True)
+    dados_contato = models.CharField(max_length=11)
+    status = models.CharField(max_length=20, choices=[('ativo', 'Ativo'), ('inativo', 'Inativo')], default='ativo')
+    
 
     def calcular_idade(self):
         hoje = date.today()
