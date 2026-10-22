@@ -1,7 +1,7 @@
 # app/serializers.py
 from rest_framework import serializers
 from datetime import date
-from app.models import Sala, Aluno
+from app.models import Sala, Aluno, FilaEspera
 
 class SalaSerializer(serializers.ModelSerializer):
     class Meta:
@@ -19,3 +19,14 @@ class AlunoSerializer(serializers.ModelSerializer):
 
     def get_idade(self, obj):
         return obj.calcular_idade()
+
+
+
+class FilaEsperaSerializer(serializers.ModelSerializer):
+    idade = serializers.SerializerMethodField()
+
+    class Meta:
+        model = FilaEspera
+        fields = ['id', 'posicao', 'status']
+        read_only_fields = ['id']
+
