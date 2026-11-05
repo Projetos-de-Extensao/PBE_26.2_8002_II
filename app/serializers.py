@@ -54,3 +54,16 @@ class FilaEsperaSerializer(serializers.ModelSerializer):
         model = FilaEspera
         fields = ["id", "posicao", "status"]
         read_only_fields = ["id"]
+
+class AgendamentoSerializer(serializers.Serializer):
+    aluno = serializers.PrimaryKeyRelatedField(queryset=Aluno.objects.all())
+    sala = serializers.PrimaryKeyRelatedField(queryset=Sala.objects.all())
+    data_hora = serializers.DateTimeField()
+    class Meta:
+        fields = ['aluno', 'sala', 'data_hora']
+        
+class TurmaSerializer(serializers.Serializer):
+    sala = serializers.PrimaryKeyRelatedField(queryset=Sala.objects.all())
+    alunos = serializers.PrimaryKeyRelatedField(queryset=Aluno.objects.all(), many=True)
+    class Meta:
+        fields = ['sala', 'alunos']

@@ -332,6 +332,14 @@ skinparam packageStyle rectangle
 		+ registrarAvaliacao()
 	}
 
+	class Servico {
+	   - id: String
+       - nome: String 
+       - descricao: String
+       - duracao: Date
+
+    }
+    
 	class Pagamento {
 		- id: String
 		- idTransacaoExterna: String

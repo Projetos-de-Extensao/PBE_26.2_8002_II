@@ -70,3 +70,39 @@ class Profissional(Usuario):
 
     def __str__(self):
         return f"profissional: {self.nome}"
+
+class Servico(models.Model):
+    id = models.TextField().primary_key
+    nome = models.CharField(max_length=100)
+    descricao = models.TextField()
+    duracao = models.DurationField()
+
+    def __str__(self):
+        return str(self.nome)
+
+
+class Agendamento(models.Model):
+    id = models.TextField().primary_key
+    data_hora = models.DateTimeField()
+    status = models.CharField(
+        max_length=20,
+        choices=[("ativo", "Ativo"), ("inativo", "Inativo")],
+        default="ativo",
+    )
+    
+    turma = models.ForeignKey("Turma", on_delete=models.CASCADE, blank=True, null=True)
+    servico = models.ForeignKey("Servico", on_delete=models.CASCADE, blank=True, null=True)
+
+    def __str__(self):
+        return f"Agendamento: {self.id}"
+
+class Turma(models.Model):
+    id = models.TextField().primary_key
+    nome = models.CharField(max_length=100)
+    sala = models.ForeignKey(Sala, on_delete=models.CASCADE)
+    alunos = models.ManyToManyField(Aluno)
+    profissional = models.ForeignKey(Profissional, on_delete=models.CASCADE)
+
+
+    def __str__(self):
+        return str(self.nome)
