@@ -31,7 +31,7 @@ class SalaSerializer(serializers.ModelSerializer):
 
 
 class AlunoSerializer(serializers.ModelSerializer):
-    idade = serializers.SerializerMethodField()
+    idade = serializers.IntegerField(source="calcular_idade", read_only=True)
 
     class Meta:
         model = Aluno
@@ -50,8 +50,6 @@ class AlunoSerializer(serializers.ModelSerializer):
 
 
 class FilaEsperaSerializer(serializers.ModelSerializer):
-    idade = serializers.SerializerMethodField()
-
     class Meta:
         model = FilaEspera
         fields = ["id", "posicao", "status"]
