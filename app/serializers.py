@@ -47,10 +47,3 @@ class AlunoSerializer(serializers.ModelSerializer):
 
     def get_idade(self, obj):
         return obj.calcular_idade()
-
-
-class FilaEsperaSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = FilaEspera
-        fields = ["id", "posicao", "status"]
-        read_only_fields = ["id"]
