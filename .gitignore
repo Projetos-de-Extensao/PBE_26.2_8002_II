@@ -29,7 +29,17 @@ venv/
 ENV/
 env/
 .venv/
+# Ignora o banco de dados local
+db.sqlite3
 
+# Ignora pastas de cache do Python
+__pycache__/
+*.pyc
+
+# Ignora o ambiente virtual (se estiver dentro da pasta do projeto)
+venv/
+env/
+.env
 # IDE
 .vscode/
 .idea/
