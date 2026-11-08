@@ -2,7 +2,7 @@
 
 from rest_framework import serializers
 
-from app.models import Aluno, FilaEspera, Profissional, Responsavel, Sala
+from app.models import Aluno, Profissional, Responsavel, Sala
 
 
 class UsuarioSerializer(serializers.ModelSerializer):
@@ -11,16 +11,16 @@ class UsuarioSerializer(serializers.ModelSerializer):
         extra_kwargs = {"senha": {"write_only": True}}
 
 
-class ResponsavelSerializer(UsuarioSerializer):
-    class Meta(UsuarioSerializer.Meta):
+class ResponsavelSerializer(serializers.ModelSerializer):
+    class Meta:
         model = Responsavel
-        fields = UsuarioSerializer.Meta.fields + ["telefone"]
+        fields = ["nome", "telefone"]
 
 
-class ProfissionalSerializer(UsuarioSerializer):
-    class Meta(UsuarioSerializer.Meta):
+class ProfissionalSerializer(serializers.ModelSerializer):
+    class Meta:
         model = Profissional
-        fields = UsuarioSerializer.Meta.fields + ["especialidade"]
+        fields = ["especialidade"]
 
 
 class SalaSerializer(serializers.ModelSerializer):
@@ -31,8 +31,6 @@ class SalaSerializer(serializers.ModelSerializer):
 
 
 class AlunoSerializer(serializers.ModelSerializer):
-    idade = serializers.IntegerField(source="calcular_idade", read_only=True)
-
     class Meta:
         model = Aluno
         fields = [
@@ -43,7 +41,4 @@ class AlunoSerializer(serializers.ModelSerializer):
             "ativo",
             "idade",
         ]
-        read_only_fields = ["id"]
-
-    def get_idade(self, obj):
-        return obj.calcular_idade()
+        read_only_fields = ["id", "responsavel_aluno"]
