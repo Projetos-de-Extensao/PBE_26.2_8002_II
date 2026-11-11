@@ -5,10 +5,12 @@ from rest_framework.routers import DefaultRouter
 from app.api import (
     AgendamentoViewSet,
     AlunoViewSet,
+    #  OcupacaoViewSet,
     ProfissionalViewSet,
     RegistroTreinamentoViewSet,
     ResponsavelViewSet,
     SalaViewSet,
+    ServicoViewSet,
 )
 from app.views import index
 
@@ -21,6 +23,8 @@ router.register(r"agendamentos", AgendamentoViewSet, basename="agendamento")
 router.register(
     r"registros", RegistroTreinamentoViewSet, basename="registro-treinamento"
 )
+# router.register(r"ocupacoes", OcupacaoViewSet, basename="ocupacao")
+router.register(r"servicos", ServicoViewSet, basename="servico")
 
 urlpatterns = [
     path("api/", include(router.urls)),
