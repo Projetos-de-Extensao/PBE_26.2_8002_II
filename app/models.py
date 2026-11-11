@@ -1,4 +1,5 @@
-from datetime import date
+import uuid
+from datetime import date, datetime
 
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
@@ -32,6 +33,7 @@ class Responsavel(models.Model):
 
 
 class Aluno(models.Model):
+    matricula = models.CharField(max_length=50, unique=True, blank=True)
     nome = models.CharField(max_length=100)
     data_nascimento = models.DateField()
     responsavel = models.ForeignKey(
@@ -63,26 +65,32 @@ class Aluno(models.Model):
             )
 
     def save(self, *args, **kwargs):
-        self.clean()  # Garante que a validação roda!
+        self.clean()
+        if not self.matricula:
+            ano = datetime.now().year
+            token_unico = uuid.uuid4().hex[:6].upper()
+            self.matricula = f"ALU-{ano}-{token_unico}"
+
         super().save(*args, **kwargs)
 
 
+"""
 class Ocupacao(models.Model):
     nome = models.CharField(max_length=100, unique=True)
     descricao = models.TextField(blank=True, null=True)
 
     def __str__(self):
         return str(self.nome)
+"""
 
 
 class Profissional(models.Model):
+    codigo_profissional = models.CharField(max_length=50, unique=True, blank=True)
     profile = models.OneToOneField(
         User, on_delete=models.CASCADE, related_name="profile_profissional"
     )
     nome = models.CharField(max_length=150)
-    ocupacao = models.ForeignKey(
-        Ocupacao, on_delete=models.CASCADE, related_name="ocupacoes"
-    )
+    ocupacao = models.CharField(max_length=100, null=False, blank=False)
     disponibilidade = models.CharField(
         max_length=20, choices=DISPONIBILIDADE_PROFISSIONAL, default="DISPONIVEL"
     )

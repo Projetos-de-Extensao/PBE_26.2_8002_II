@@ -5,10 +5,12 @@ from rest_framework import serializers
 from app.models import (
     Agendamento,
     Aluno,
+    # Ocupacao,
     Profissional,
     RegistroTreinamento,
     Responsavel,
     Sala,
+    Servico,
 )
 
 
@@ -21,7 +23,8 @@ class ResponsavelSerializer(serializers.ModelSerializer):
 class ProfissionalSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profissional
-        fields = ["id", "nome", "profile", "ocupacao", "disponibilidade"]
+        fields = ["id", "codigo_profissional", "nome", "ocupacao", "disponibilidade"]
+        read_only_fields = ["id", "codigo_profissional"]
 
 
 class SalaSerializer(serializers.ModelSerializer):
@@ -34,19 +37,22 @@ class AlunoSerializer(serializers.ModelSerializer):
     contato_responsavel = serializers.CharField(
         source="responsavel.telefone", read_only=True
     )
+    nome_responsavel = serializers.CharField(source="responsavel.nome", read_only=True)
 
     class Meta:
         model = Aluno
         fields = [
             "id",
+            "matricula",
             "nome",
             "data_nascimento",
             "responsavel",
+            "nome_responsavel",
             "status",
             "idade",
             "contato_responsavel",
         ]
-        read_only_fields = ["id", "responsavel"]
+        read_only_fields = ["id", "responsavel", "matricula"]
 
     def validate_data_nascimento(self, value):
         if Aluno(data_nascimento=value).idade > 12:
@@ -58,12 +64,29 @@ class AlunoSerializer(serializers.ModelSerializer):
 
 class AgendamentoSerializer(serializers.ModelSerializer):
     posicao_fila = serializers.SerializerMethodField()
+    aluno_matricula = serializers.SlugRelatedField(
+        queryset=Aluno.objects.all(),
+        slug_field="matricula",
+        write_only=True,
+        source="aluno",
+    )
+    aluno = serializers.StringRelatedField(read_only=True)
+    profissional = serializers.StringRelatedField(read_only=True)
+    sala = serializers.StringRelatedField(read_only=True)
+    profissional_codigo = serializers.SlugRelatedField(
+        queryset=Profissional.objects.all(),
+        slug_field="codigo_profissional",  # Busca pelo código único
+        write_only=True,
+        source="profissional",
+    )
 
     class Meta:
         model = Agendamento
         fields = [
             "id",
             "aluno",
+            "aluno_matricula",
+            "profissional_codigo",
             "profissional",
             "sala",
             "data_hora",
@@ -112,3 +135,17 @@ class RegistroTreinamentoSerializer(serializers.ModelSerializer):
         model = RegistroTreinamento
         fields = "__all__"
         read_only_fields = ["profissional"]
+
+
+"""
+class OcupacaoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Ocupacao
+        fields = "__all__"
+"""
+
+
+class ServicoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Servico
+        fields = "__all__"

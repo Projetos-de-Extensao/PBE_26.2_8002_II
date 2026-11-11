@@ -5,18 +5,22 @@ from rest_framework.permissions import SAFE_METHODS, BasePermission
 from app.models import (
     Agendamento,
     Aluno,
+    # Ocupacao,
     Profissional,
     RegistroTreinamento,
     Responsavel,
     Sala,
+    Servico,
 )
 from app.serializers import (
     AgendamentoSerializer,
     AlunoSerializer,
+    # OcupacaoSerializer,
     ProfissionalSerializer,
     RegistroTreinamentoSerializer,
     ResponsavelSerializer,
     SalaSerializer,
+    ServicoSerializer,
 )
 
 
@@ -27,7 +31,7 @@ class AdminEscreveTodosLeem(BasePermission):
         if request.method in SAFE_METHODS:
             return bool(request.user and request.user.is_authenticated)
         return bool(request.user and request.user.is_staff)
-    
+
 
 class SalaViewSet(viewsets.ModelViewSet):
     queryset = Sala.objects.all()
@@ -57,6 +61,17 @@ class ProfissionalViewSet(viewsets.ModelViewSet):
     queryset = Profissional.objects.all()
     serializer_class = ProfissionalSerializer
     permission_classes = [AdminEscreveTodosLeem]
+
+    def get_queryset(self):
+
+        return Profissional.objects.filter(profile=self.request.user)
+
+    def perform_create(self, serializer):
+        if Profissional.objects.filter(profile=self.request.user).exists():
+            raise ValidationError(
+                "Este Profissional já está cadastrado na base de dados."
+            )
+        serializer.save(profile=self.request.user)
 
 
 class AgendamentoViewSet(viewsets.ModelViewSet):
@@ -121,3 +136,17 @@ class ResponsavelViewSet(viewsets.ModelViewSet):
         if Responsavel.objects.filter(profile=self.request.user).exists():
             raise ValidationError("Este usuário já possui um perfil de responsável.")
         serializer.save(profile=self.request.user)
+
+
+"""
+class OcupacaoViewSet(viewsets.ModelViewSet):
+    serializer_class = OcupacaoSerializer
+    queryset = Ocupacao.objects.all()
+    permission_classes = [AdminEscreveTodosLeem]
+"""
+
+
+class ServicoViewSet(viewsets.ModelViewSet):
+    serializer_class = ServicoSerializer
+    queryset = Servico.objects.all()
+    permission_classes = [AdminEscreveTodosLeem]
