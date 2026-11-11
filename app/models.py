@@ -84,7 +84,7 @@ class Profissional(models.Model):
         Ocupacao, on_delete=models.CASCADE, related_name="ocupacoes"
     )
     disponibilidade = models.CharField(
-        choices=DISPONIBILIDADE_PROFISSIONAL, default="disponivel"
+        max_length=20, choices=DISPONIBILIDADE_PROFISSIONAL, default="DISPONIVEL"
     )
 
     def __str__(self):

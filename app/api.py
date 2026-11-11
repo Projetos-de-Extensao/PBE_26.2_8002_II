@@ -1,5 +1,6 @@
 from rest_framework import viewsets
-from rest_framework.exceptions import PermissionDenied
+from rest_framework.exceptions import PermissionDenied, ValidationError
+from rest_framework.permissions import SAFE_METHODS, BasePermission
 
 from app.models import (
     Agendamento,
@@ -19,9 +20,19 @@ from app.serializers import (
 )
 
 
+class AdminEscreveTodosLeem(BasePermission):
+    """Qualquer usuário logado consulta; só administrador altera."""
+
+    def has_permission(self, request, view):
+        if request.method in SAFE_METHODS:
+            return bool(request.user and request.user.is_authenticated)
+        return bool(request.user and request.user.is_staff)
+    
+
 class SalaViewSet(viewsets.ModelViewSet):
     queryset = Sala.objects.all()
     serializer_class = SalaSerializer
+    permission_classes = [AdminEscreveTodosLeem]
 
 
 class AlunoViewSet(viewsets.ModelViewSet):
@@ -36,15 +47,16 @@ class AlunoViewSet(viewsets.ModelViewSet):
             return Aluno.objects.none()
 
     def perform_create(self, serializer):
-        try:
-            serializer.save(responsavel=self.request.user.perfil_responsavel)
-        except Exception:
+        responsavel = getattr(self.request.user, "perfil_responsavel", None)
+        if responsavel is None:
             raise PermissionDenied("Apenas responsáveis podem cadastrar alunos.")
+        serializer.save(responsavel=responsavel)
 
 
 class ProfissionalViewSet(viewsets.ModelViewSet):
     queryset = Profissional.objects.all()
     serializer_class = ProfissionalSerializer
+    permission_classes = [AdminEscreveTodosLeem]
 
 
 class AgendamentoViewSet(viewsets.ModelViewSet):
@@ -81,16 +93,16 @@ class RegistroTreinamentoViewSet(viewsets.ModelViewSet):
             return RegistroTreinamento.objects.filter(
                 agendamento__aluno__responsavel=user.perfil_responsavel
             )
-        elif hasattr(user, "perfil_profissional"):
+        elif hasattr(user, "profile_profissional"):
             return RegistroTreinamento.objects.filter(
-                profissional=user.perfil_profissional
+                profissional=user.profile_profissional
             )
 
         return RegistroTreinamento.objects.none()
 
     def perform_create(self, serializer):
         try:
-            profissional_logado = self.request.user.perfil_profissional
+            profissional_logado = self.request.user.profile_profissional
             serializer.save(profissional=profissional_logado)
         except Exception:
             raise PermissionDenied(
@@ -106,5 +118,6 @@ class ResponsavelViewSet(viewsets.ModelViewSet):
         return Responsavel.objects.filter(profile=self.request.user)
 
     def perform_create(self, serializer):
-
+        if Responsavel.objects.filter(profile=self.request.user).exists():
+            raise ValidationError("Este usuário já possui um perfil de responsável.")
         serializer.save(profile=self.request.user)

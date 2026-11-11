@@ -22,7 +22,6 @@ class ProfissionalSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profissional
         fields = ["id", "nome", "profile", "ocupacao", "disponibilidade"]
-        read_only_fields = ["profile"]
 
 
 class SalaSerializer(serializers.ModelSerializer):
@@ -49,6 +48,13 @@ class AlunoSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ["id", "responsavel"]
 
+    def validate_data_nascimento(self, value):
+        if Aluno(data_nascimento=value).idade > 12:
+            raise serializers.ValidationError(
+                "A academia atende exclusivamente crianças até 12 anos de idade."
+            )
+        return value
+
 
 class AgendamentoSerializer(serializers.ModelSerializer):
     posicao_fila = serializers.SerializerMethodField()
@@ -73,12 +79,14 @@ class AgendamentoSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         sala_escolhida = attrs.get("sala")
         horario_escolhido = attrs.get("data_hora")
+        if sala_escolhida is None or horario_escolhido is None:
+            return attrs
 
         ocupacao_atual = Agendamento.objects.filter(
             sala=sala_escolhida, data_hora=horario_escolhido, status="ativo"
         ).count()
 
-        if ocupacao_atual >= sala_escolhida.capacidade_maxima:
+        if ocupacao_atual >= sala_escolhida.capacidade:
             attrs["status"] = "fila_espera"
         else:
             attrs["status"] = "ativo"
