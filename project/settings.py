@@ -31,6 +31,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    "jazzmin",
     "rest_framework",
     "rest_framework.authtoken",
     "drf_spectacular",
@@ -43,14 +44,20 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
 ]
 
+SPECTACULAR_SETTINGS = {
+    "TITLE": "Academia de alta perfomance",
+    "DESCRIPTION": "API documentation",
+    "VERSION": "1.0.0",
+}
+
 REST_FRAMEWORK = {
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
-    'DEFAULT_AUTHENTICATION_CLASSES': [
-           'rest_framework.authentication.TokenAuthentication',
-       ],
-       'DEFAULT_PERMISSION_CLASSES': [
-           'rest_framework.permissions.IsAuthenticated',
-       ],
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework.authentication.TokenAuthentication",
+    ],
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.IsAuthenticated",
+    ],
 }
 
 MIDDLEWARE = [
