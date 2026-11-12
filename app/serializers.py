@@ -1,5 +1,8 @@
 # app/serializers.py
 
+from datetime import timedelta
+
+from django.utils import timezone
 from rest_framework import serializers
 
 from app.models import (
@@ -11,19 +14,34 @@ from app.models import (
     Responsavel,
     Sala,
     Servico,
+    SERVICO_SALA,
 )
 
 
 class ResponsavelSerializer(serializers.ModelSerializer):
     class Meta:
         model = Responsavel
-        fields = ["nome", "telefone", "cpf"]
+        fields = ["id", "nome", "telefone", "cpf"]
+        read_only_fields = ["id"]
 
 
 class ProfissionalSerializer(serializers.ModelSerializer):
+    matricula = serializers.CharField(
+        source="codigo_profissional", read_only=True
+    )
+    formacao = serializers.CharField(source="ocupacao", read_only=True)
+
     class Meta:
         model = Profissional
-        fields = ["id", "codigo_profissional", "nome", "ocupacao", "disponibilidade"]
+        fields = [
+            "id",
+            "codigo_profissional",
+            "matricula",
+            "nome",
+            "ocupacao",
+            "formacao",
+            "disponibilidade",
+        ]
         read_only_fields = ["id", "codigo_profissional"]
 
 
@@ -73,6 +91,13 @@ class AgendamentoSerializer(serializers.ModelSerializer):
     aluno = serializers.StringRelatedField(read_only=True)
     profissional = serializers.StringRelatedField(read_only=True)
     sala = serializers.StringRelatedField(read_only=True)
+    servico = serializers.StringRelatedField(read_only=True)
+    servico_nome = serializers.SlugRelatedField(
+        queryset=Servico.objects.all(),
+        slug_field="nome",
+        write_only=True,
+        source="servico",
+    )
     profissional_codigo = serializers.SlugRelatedField(
         queryset=Profissional.objects.all(),
         slug_field="codigo_profissional",  # Busca pelo código único
@@ -89,6 +114,8 @@ class AgendamentoSerializer(serializers.ModelSerializer):
             "profissional_codigo",
             "profissional",
             "sala",
+            "servico",
+            "servico_nome",
             "data_hora",
             "status",
             "posicao_fila",
@@ -100,14 +127,81 @@ class AgendamentoSerializer(serializers.ModelSerializer):
         ]
 
     def validate(self, attrs):
-        sala_escolhida = attrs.get("sala")
-        horario_escolhido = attrs.get("data_hora")
-        if sala_escolhida is None or horario_escolhido is None:
+        servico_escolhido = attrs.get(
+            "servico", getattr(self.instance, "servico", None)
+        )
+        if servico_escolhido is not None:
+            nome_sala = SERVICO_SALA[servico_escolhido.nome]
+            sala_automatica = Sala.objects.filter(nome=nome_sala).first()
+            if sala_automatica is None:
+                raise serializers.ValidationError(
+                    "A sala padrão do serviço ainda não foi cadastrada."
+                )
+            attrs["sala"] = sala_automatica
+
+        aluno_escolhido = attrs.get("aluno", getattr(self.instance, "aluno", None))
+        profissional_escolhido = attrs.get(
+            "profissional", getattr(self.instance, "profissional", None)
+        )
+        sala_escolhida = attrs.get("sala", getattr(self.instance, "sala", None))
+        horario_escolhido = attrs.get(
+            "data_hora", getattr(self.instance, "data_hora", None)
+        )
+        if (
+            aluno_escolhido is None
+            or profissional_escolhido is None
+            or sala_escolhida is None
+            or horario_escolhido is None
+            or servico_escolhido is None
+        ):
             return attrs
 
-        ocupacao_atual = Agendamento.objects.filter(
-            sala=sala_escolhida, data_hora=horario_escolhido, status="ativo"
-        ).count()
+        inicio = horario_escolhido
+        fim = inicio + timedelta(minutes=servico_escolhido.duracao_minutos)
+        agendamentos_existentes = Agendamento.objects.filter(
+            status__in=["ativo", "fila_espera"]
+        ).select_related("servico")
+        if self.instance is not None:
+            agendamentos_existentes = agendamentos_existentes.exclude(
+                pk=self.instance.pk
+            )
+
+        for agendamento in agendamentos_existentes.filter(aluno=aluno_escolhido):
+            inicio_existente = agendamento.data_hora
+            fim_existente = inicio_existente + timedelta(
+                minutes=agendamento.servico.duracao_minutos
+            )
+            if inicio < fim_existente and inicio_existente < fim:
+                raise serializers.ValidationError(
+                    {"data_hora": "O aluno já possui um agendamento neste intervalo."}
+                )
+
+        for agendamento in agendamentos_existentes.filter(
+            profissional=profissional_escolhido
+        ):
+            inicio_existente = agendamento.data_hora
+            fim_existente = inicio_existente + timedelta(
+                minutes=agendamento.servico.duracao_minutos
+            )
+            if inicio < fim_existente and inicio_existente < fim:
+                raise serializers.ValidationError(
+                    {
+                        "data_hora": (
+                            "O profissional já possui um agendamento neste intervalo."
+                        )
+                    }
+                )
+
+        ocupacao_atual = 0
+        for agendamento in agendamentos_existentes.filter(
+            sala=sala_escolhida, status="ativo"
+        ):
+            inicio_existente = agendamento.data_hora
+            fim_existente = inicio_existente + timedelta(
+                minutes=agendamento.servico.duracao_minutos
+            )
+            if inicio < fim_existente and inicio_existente < fim:
+                ocupacao_atual += 1
 
         if ocupacao_atual >= sala_escolhida.capacidade:
             attrs["status"] = "fila_espera"
@@ -130,7 +224,41 @@ class AgendamentoSerializer(serializers.ModelSerializer):
         return pessoas_na_frente + 1
 
 
+class AgendamentoMatriculaField(serializers.RelatedField):
+    default_error_messages = {
+        "does_not_exist": "Não existe agendamento para esta matrícula.",
+        "multiple": "A matrícula possui mais de um agendamento; selecione o agendamento por outro meio.",
+    }
+
+    def to_internal_value(self, data):
+        agendamentos = self.get_queryset().filter(aluno__matricula=data)
+        if not agendamentos.exists():
+            self.fail("does_not_exist")
+        if agendamentos.count() > 1:
+            self.fail("multiple")
+        return agendamentos.get()
+
+    def to_representation(self, value):
+        return value.aluno.matricula
+
+
 class RegistroTreinamentoSerializer(serializers.ModelSerializer):
+    agendamento = AgendamentoMatriculaField(queryset=Agendamento.objects.all())
+
+    def validate(self, attrs):
+        agendamento = attrs.get(
+            "agendamento", getattr(self.instance, "agendamento", None)
+        )
+        if agendamento is not None and agendamento.data_hora > timezone.now():
+            raise serializers.ValidationError(
+                {
+                    "agendamento": (
+                        "O registro só pode ser criado após o horário do treinamento."
+                    )
+                }
+            )
+        return attrs
+
     class Meta:
         model = RegistroTreinamento
         fields = "__all__"
@@ -149,3 +277,11 @@ class ServicoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Servico
         fields = "__all__"
+
+
+class ServicoProfissionalSerializer(serializers.Serializer):
+    profissional_codigo = serializers.SlugRelatedField(
+        queryset=Profissional.objects.all(),
+        slug_field="codigo_profissional",
+        source="profissional",
+    )

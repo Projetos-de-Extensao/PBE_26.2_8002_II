@@ -1,4 +1,6 @@
-from rest_framework import viewsets
+from rest_framework import serializers, viewsets
+from rest_framework.decorators import action
+from rest_framework.response import Response
 from rest_framework.exceptions import PermissionDenied, ValidationError
 from rest_framework.permissions import SAFE_METHODS, BasePermission
 
@@ -21,6 +23,7 @@ from app.serializers import (
     ResponsavelSerializer,
     SalaSerializer,
     ServicoSerializer,
+    ServicoProfissionalSerializer,
 )
 
 
@@ -33,7 +36,7 @@ class AdminEscreveTodosLeem(BasePermission):
         return bool(request.user and request.user.is_staff)
 
 
-class SalaViewSet(viewsets.ModelViewSet):
+class SalaViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Sala.objects.all()
     serializer_class = SalaSerializer
     permission_classes = [AdminEscreveTodosLeem]
@@ -63,7 +66,8 @@ class ProfissionalViewSet(viewsets.ModelViewSet):
     permission_classes = [AdminEscreveTodosLeem]
 
     def get_queryset(self):
-
+        if hasattr(self.request.user, "perfil_responsavel"):
+            return Profissional.objects.all()
         return Profissional.objects.filter(profile=self.request.user)
 
     def perform_create(self, serializer):
@@ -99,8 +103,18 @@ class AgendamentoViewSet(viewsets.ModelViewSet):
             raise PermissionDenied("Apenas responsáveis podem fazer agendamentos.")
 
 
+class RegistroTreinamentoPermission(BasePermission):
+    def has_permission(self, request, view):
+        if not request.user or not request.user.is_authenticated:
+            return False
+        if request.method in SAFE_METHODS:
+            return True
+        return hasattr(request.user, "profile_profissional")
+
+
 class RegistroTreinamentoViewSet(viewsets.ModelViewSet):
     serializer_class = RegistroTreinamentoSerializer
+    permission_classes = [RegistroTreinamentoPermission]
 
     def get_queryset(self):
         user = self.request.user
@@ -116,13 +130,12 @@ class RegistroTreinamentoViewSet(viewsets.ModelViewSet):
         return RegistroTreinamento.objects.none()
 
     def perform_create(self, serializer):
-        try:
-            profissional_logado = self.request.user.profile_profissional
-            serializer.save(profissional=profissional_logado)
-        except Exception:
+        profissional_logado = getattr(self.request.user, "profile_profissional", None)
+        if profissional_logado is None:
             raise PermissionDenied(
                 "Apenas treinadores podem criar relatórios de treinamento."
             )
+        serializer.save(profissional=profissional_logado)
 
 
 class ResponsavelViewSet(viewsets.ModelViewSet):
@@ -146,7 +159,34 @@ class OcupacaoViewSet(viewsets.ModelViewSet):
 """
 
 
-class ServicoViewSet(viewsets.ModelViewSet):
+class ServicoViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = ServicoSerializer
     queryset = Servico.objects.all()
     permission_classes = [AdminEscreveTodosLeem]
+
+    def get_serializer_class(self):
+        if self.action == "adicionar_profissional":
+            return ServicoProfissionalSerializer
+        return super().get_serializer_class()
+
+    @action(detail=True, methods=["post"], url_path="profissionais")
+    def adicionar_profissional(self, request, pk=None):
+        servico = self.get_object()
+        serializer = ServicoProfissionalSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        profissional = serializer.validated_data["profissional"]
+
+        if servico.profissionais.filter(pk=profissional.pk).exists():
+            raise serializers.ValidationError(
+                "Este profissional já está associado ao serviço."
+            )
+
+        servico.profissionais.add(profissional)
+        return Response(
+            {
+                "detail": "Profissional associado ao serviço com sucesso.",
+                "servico": servico.nome,
+                "profissional": profissional.codigo_profissional,
+            },
+            status=201,
+        )

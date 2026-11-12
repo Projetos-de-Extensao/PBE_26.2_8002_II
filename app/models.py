@@ -10,9 +10,50 @@ DISPONIBILIDADE_PROFISSIONAL = [
     ("INDISPONIVEL", "indisponivel"),
 ]
 
+TIPOS_SERVICO = [
+    ("Nutrição Esportiva", "nutricao_esportiva"),
+    ("Fisioterapia", "fisioterapia"),
+    ("Recuperação Muscular", "recuperacao_muscular"),
+    ("Preparação Física", "preparacao_fisica"),
+    ("Treinamento Funcional", "treinamento_funcional"),
+    ("Avaliação de Performance", "avaliacao_performance"),
+]
+
+SALAS = [
+    "Área de Treinamento Funcional e Gramado Sintético",
+    "Laboratório de Avaliação Física",
+    "Consultório de Nutrição Esportiva",
+    "Espaço de Fisioterapia e Recovery",
+]
+
+CAPACIDADES_SALA = {
+    "Área de Treinamento Funcional e Gramado Sintético": 20,
+    "Laboratório de Avaliação Física": 10,
+    "Consultório de Nutrição Esportiva": 4,
+    "Espaço de Fisioterapia e Recovery": 4,
+}
+
+DESCRICOES_SERVICO = {
+    "Nutrição Esportiva": "Avaliação corporal e planejamento alimentar para atletas.",
+    "Fisioterapia": "Reabilitação e prevenção de lesões esportivas.",
+    "Recuperação Muscular": "Protocolos de recuperação muscular após treinos e jogos.",
+    "Preparação Física": "Treinos de força, potência, agilidade e condicionamento.",
+    "Treinamento Funcional": "Exercícios de coordenação, mobilidade e fundamentos motores.",
+    "Avaliação de Performance": "Testes físicos e análise de desempenho esportivo.",
+}
+
+SERVICO_SALA = {
+    "Nutrição Esportiva": "Consultório de Nutrição Esportiva",
+    "Fisioterapia": "Espaço de Fisioterapia e Recovery",
+    "Recuperação Muscular": "Espaço de Fisioterapia e Recovery",
+    "Preparação Física": "Área de Treinamento Funcional e Gramado Sintético",
+    "Treinamento Funcional": "Área de Treinamento Funcional e Gramado Sintético",
+    "Avaliação de Performance": "Laboratório de Avaliação Física",
+}
+
 
 class Sala(models.Model):
-    nome = models.CharField(max_length=100)
+    nome = models.CharField(max_length=100, choices=[(sala, sala) for sala in SALAS])
     capacidade = models.IntegerField()
     disponivel = models.BooleanField()
 
@@ -90,7 +131,12 @@ class Profissional(models.Model):
         User, on_delete=models.CASCADE, related_name="profile_profissional"
     )
     nome = models.CharField(max_length=150)
-    ocupacao = models.CharField(max_length=100, null=False, blank=False)
+    ocupacao = models.CharField(
+        max_length=100,
+        choices=TIPOS_SERVICO,
+        null=False,
+        blank=False,
+    )
     disponibilidade = models.CharField(
         max_length=20, choices=DISPONIBILIDADE_PROFISSIONAL, default="DISPONIVEL"
     )
@@ -98,9 +144,20 @@ class Profissional(models.Model):
     def __str__(self):
         return str(self.nome)
 
+    def save(self, *args, **kwargs):
+        self.clean()
+        if not self.codigo_profissional:
+            ano = datetime.now().year
+            token_unico = uuid.uuid4().hex[:6].upper()
+            self.codigo_profissional = f"PRO-{ano}-{token_unico}"
+
+        super().save(*args, **kwargs)
+
 
 class Servico(models.Model):
-    nome = models.CharField(max_length=150)
+    nome = models.CharField(
+        choices=TIPOS_SERVICO, default="Nutrição Esportiva", unique=True
+    )
     descricao = models.TextField(blank=True, null=True)
     duracao_minutos = models.IntegerField(default=30)  # type: ignore
     profissionais = models.ManyToManyField(Profissional, related_name="servicos")
@@ -125,7 +182,7 @@ class Agendamento(models.Model):
 
     sala = models.ForeignKey(Sala, on_delete=models.CASCADE, blank=True, null=True)
     servico = models.ForeignKey(
-        Servico, on_delete=models.CASCADE, blank=True, null=True
+        Servico, on_delete=models.CASCADE, blank=False, null=False, related_name="agendamentos"
     )
     criado_em = models.DateTimeField(auto_now_add=True)
 

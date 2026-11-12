@@ -48,6 +48,7 @@ SPECTACULAR_SETTINGS = {
     "TITLE": "Academia de alta perfomance",
     "DESCRIPTION": "API documentation",
     "VERSION": "1.0.0",
+     "COMPONENT_SPLIT_REQUEST": True,
 }
 
 REST_FRAMEWORK = {
@@ -58,6 +59,11 @@ REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.IsAuthenticated",
     ],
+    'DEFAULT_PARSER_CLASSES': (
+        'rest_framework.parsers.JSONParser',
+        'rest_framework.parsers.FormParser',
+        'rest_framework.parsers.MultiPartParser',
+    ),
 }
 
 MIDDLEWARE = [
