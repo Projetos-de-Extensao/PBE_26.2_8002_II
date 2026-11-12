@@ -18,6 +18,12 @@ from app.models import (
 
 
 class AuthenticationApiTests(APITestCase):
+    def test_root_redirects_to_api(self):
+        response = self.client.get("/")
+
+        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
+        self.assertEqual(response["Location"], "/api/")
+
     def test_user_can_register_and_obtain_token(self):
         register_response = self.client.post(
             reverse("api_register"),
