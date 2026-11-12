@@ -100,6 +100,10 @@ class Aluno(models.Model):
         return str(self.nome)
 
     def clean(self):
+        if self.idade < 7:
+            raise ValidationError(
+                "A academia atende exclusivamente crianças a partir de 7 anos de idade."
+            )
         if self.idade > 12:
             raise ValidationError(
                 "A academia atende exclusivamente crianças até 12 anos de idade."

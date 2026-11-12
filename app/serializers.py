@@ -73,6 +73,10 @@ class AlunoSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "responsavel", "matricula"]
 
     def validate_data_nascimento(self, value):
+        if Aluno(data_nascimento=value).idade < 7:
+            raise serializers.ValidationError(
+                "A academia atende exclusivamente crianças a partir de 7 anos de idade."
+            )
         if Aluno(data_nascimento=value).idade > 12:
             raise serializers.ValidationError(
                 "A academia atende exclusivamente crianças até 12 anos de idade."

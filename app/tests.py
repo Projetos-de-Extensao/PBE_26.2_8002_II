@@ -102,6 +102,22 @@ class CompleteApiFlowTests(APITestCase):
         )
         self.assertEqual(profile_response.status_code, status.HTTP_201_CREATED)
 
+        underage_student_response = self.client.post(
+            reverse("aluno-list"),
+            {
+                "nome": "Aluno menor de 7 anos",
+                "data_nascimento": f"{date.today().year - 6}-01-01",
+            },
+            format="json",
+        )
+        self.assertEqual(
+            underage_student_response.status_code, status.HTTP_400_BAD_REQUEST
+        )
+        self.assertIn(
+            "a partir de 7 anos",
+            underage_student_response.data["data_nascimento"][0],
+        )
+
         admin_token = self.get_token("admin-fluxo", "senha-segura-123")
         self.client.credentials(HTTP_AUTHORIZATION=f"Token {admin_token}")
         professional_response = self.client.post(
