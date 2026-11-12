@@ -30,7 +30,6 @@ ENV/
 env/
 .venv/
 # Ignora o banco de dados local
-db.sqlite3
 
 # Ignora pastas de cache do Python
 __pycache__/
