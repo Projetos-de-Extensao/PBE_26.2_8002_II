@@ -12,22 +12,21 @@ Mapa mental consiste em criar resumos cheios de símbolos, cores, setas e frases
 ## Metodologia
 
 <p align="justify">
-O mapa foi elaborado a partir da consolidação das ideias levantadas no <a href="Brainstorm.md">Brainstorm</a>, no <a href="5w2h.md">5W2H</a> e no <a href="design_thinking.md">Design Thinking</a>. O tema central representa o sistema e seus ramos organizam o problema, os usuários, os cadastros, a operação, o acompanhamento, a administração e a base tecnológica. O diagrama foi escrito em PlantUML para permanecer versionável e fácil de atualizar durante as próximas iterações.
+O mapa foi elaborado a partir da consolidação das ideias levantadas no <a href="Brainstorm.md">Brainstorm</a>, no <a href="5w2h.md">5W2H</a> e no <a href="design_thinking.md">Design Thinking</a>, e atualizado para refletir o sistema implementado. O tema central representa o sistema e seus ramos organizam o problema, os usuários, os cadastros, a operação, o acompanhamento e a base tecnológica. O diagrama foi escrito em PlantUML para permanecer versionável e fácil de atualizar durante as próximas iterações.
 </p>
  
 ## Mapa mental geral
  
-### Versão 1.0
+### Versão 2.0
 
-O centro do mapa é o **Sistema para academia de alta perfomance**. A leitura parte do centro e segue os ramos para compreender:
+O centro do mapa é o **Sistema para academia de alta performance**. A leitura parte do centro e segue os ramos para compreender:
 
 - **Problema e objetivo:** por que o sistema é necessário e quais resultados deve apoiar;
 - **Usuários e permissões:** quem utiliza a solução e quais informações cada perfil pode acessar;
-- **Cadastros:** quais entidades sustentam a operação;
-- **Operação dos treinamentos:** como o agendamento, as validações, os cancelamentos e os reagendamentos funcionam;
-- **Acompanhamento e comunicação:** como registrar a rotina dos atletas e informar os envolvidos;
-- **Administração e indicadores:** como a academia acompanha sua operação;
-- **Base tecnológica:** quais decisões orientam o backend e o MVP.
+- **Cadastros:** entidades implementadas no backend;
+- **Operação dos treinamentos:** como o agendamento, a fila de espera e o cancelamento funcionam;
+- **Acompanhamento:** como registrar a rotina dos atletas;
+- **Base tecnológica:** quais decisões orientam o backend.
 
 ```plantuml
 @startmindmap
@@ -50,83 +49,66 @@ skinparam NodeFontColor #263238
 **** Agenda e cancela treinamentos
 **** Consulta agenda e evolução dos dependentes
 *** Profissional
-**** Consulta agenda e turmas atribuídas
-**** Registra presença e avaliações autorizadas
-*** Administração e recepção
-**** Gerencia cadastros, conflitos e comunicados
-**** Controla espaços, turmas e profissionais
-*** Acesso por perfil e princípio do menor privilégio
+**** Consulta a própria agenda
+**** Registra presença e avaliações
+*** Administrador (staff)
+**** Gerencia profissionais, salas e serviços
+*** Acesso por token e princípio do menor privilégio
 
 ** Cadastros
 *** Usuários e responsáveis
-**** Autenticação e recuperação de senha
-**** Vínculo com um ou mais responsáveis legais
+**** Registro, login por token e logout
+**** Vínculo entre usuário e perfil de responsável
 *** Alunos e atletas
-**** Data de nascimento e validação de idade
-**** Situação: ativo, afastado ou inativo
-**** Saúde, restrições e autorizações com acesso restrito
+**** Data de nascimento e validação de idade (7 a 12 anos)
+**** Matrícula automática no formato ALU-ano-código
+**** Situação: ativo ou inativo
 *** Profissionais
-**** Especialidades e disponibilidade
-*** Espaços e turmas
-**** Capacidade, modalidade, duração e faixa etária
+**** Código automático no formato PRO-ano-código
+**** Ocupação (tipo de serviço) e disponibilidade
+*** Serviços
+**** Catálogo fixo de seis modalidades
+**** Duração e descrição de cada serviço
+**** Associação de profissionais ao serviço
+*** Salas
+**** Nome e capacidade
+**** Cada serviço acontece em uma sala própria
 
 ** Operação dos treinamentos
 *** Agendamento
-**** Selecionar aluno, data, horário e turma
-**** Verificar aluno, profissional, espaço e turma
-**** Bloquear duplicidade e horários conflitantes
-*** Regras de negócio
-**** Idade compatível com a turma
-**** Limite de vagas da turma e do espaço
-**** Disponibilidade do profissional
-*** Cancelamento e reagendamento
-**** Respeitar prazo definido pela academia
-**** Liberar a vaga após cancelamento
-**** Manter histórico e responsável pela alteração
-*** Evolução futura: fila de espera
+**** Selecionar aluno, serviço, profissional, sala, data e hora
+**** Bloquear duplicidade de horário
+**** Restrito ao responsável do aluno
+*** Fila de espera automática
+**** Acionada quando a sala atinge a capacidade no horário
+**** Posição na fila calculada pela ordem de criação
+*** Cancelamento
+**** Libera a vaga da sala
+**** Mantém histórico com data de criação e status
 
-** Acompanhamento e comunicação
-*** Presença e frequência
-**** Presente, ausente ou falta justificada
-*** Evolução do atleta
-**** Avaliações físicas e técnicas
-**** Histórico de treinamentos
-*** Notificações internas
-**** Confirmações e alterações de agendamento
-**** Inclusão ou remoção de aluno na turma
-**** Cancelamento pela academia
-*** Pagamentos
-**** API de pagamentos fornecida pela equipe mobile
-**** Solicitação vinculada ao agendamento
-**** Estados: aprovado, pendente, recusado e erro
-**** Backend sem dados sensíveis do meio de pagamento
-
-** Administração e indicadores
-*** Dashboard operacional
-**** Ocupação e vagas por turma
-**** Agenda de espaços e profissionais
-**** Treinamentos do dia e alunos esperados
-*** Relatórios básicos
-**** Faltas, cancelamentos e reagendamentos
-**** Alunos ativos, afastados e inativos
-*** Evolução futura
-**** Integração financeira e inadimplência
-**** E-mail e SMS
-**** Relatórios avançados
+** Acompanhamento
+*** Registro de treinamento
+**** Presença ou ausência do aluno
+**** Observações do treinador
+**** Avaliações física e técnica
+**** Um registro por agendamento
 
 ** Base tecnológica
 *** Backend em Python e Django
-*** Autenticação e autorização nativas
-*** Validações automáticas das regras
-*** Auditoria de alterações relevantes
-*** MVP focado em cadastro e agendamento
+*** API REST com Django REST Framework
+*** Autenticação por token
+*** Documentação automática com drf-spectacular
 @endmindmap
 ```
+
+## Evoluções descartadas nesta versão
+
+Nas versões anteriores do mapa apareciam os ramos de **turmas**, **pagamentos** e **notificações**. Essas capacidades não fazem parte do sistema implementado: o agendamento é individual por serviço, o controle de lotação é feito pela capacidade da sala (com fila de espera automática integrada ao agendamento) e não há integração financeira.
 
 ## Conclusão
 
 <p align="justify">
-O mapa organiza a proposta do projeto em uma visão única: a academia precisa de uma fonte confiável para gerenciar responsáveis, atletas, profissionais, espaços e treinamentos. O núcleo do MVP está no vínculo entre responsável e aluno e no agendamento com validação de idade, disponibilidade e vagas. Os demais ramos mostram capacidades que podem ser desenvolvidas de forma incremental.
+O mapa organiza a proposta do projeto em uma visão única: a academia precisa de uma fonte confiável para gerenciar responsáveis, atletas, profissionais, serviços, salas e treinamentos. O núcleo implementado está no vínculo entre responsável e aluno, no agendamento individual com validação de idade e capacidade da sala e na fila de espera automática. Os demais ramos mostram capacidades que podem ser desenvolvidas de forma incremental.
 </p>
  
 ## Referências
@@ -138,6 +120,7 @@ O mapa organiza a proposta do projeto em uma visão única: a academia precisa d
 
 ## Versionamento
 
-| Data       | Versão | Descrição                                            | Autor(es)     |
-| ---------- | ------ | ---------------------------------------------------- | ------------- |
-| 13/09/2026 | 1.0    | Criação do mapa mental geral da proposta do sistema. | Luiz Fernando |
+| Data       | Versão | Descrição                                                                        | Autor(es)     |
+| ---------- | ------ | -------------------------------------------------------------------------------- | ------------- |
+| 13/09/2026 | 1.0    | Criação do mapa mental geral da proposta do sistema.                             | Luiz Fernando |
+| 13/11/2026 | 2.0    | Atualização para refletir o código implementado (sem turmas, pagamentos e notificações). | Ricardo Costa |

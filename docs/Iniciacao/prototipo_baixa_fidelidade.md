@@ -12,44 +12,42 @@ O protótipo de baixa fidelidade representa, de forma rápida e objetiva, as pri
 ## Metodologia
 
 <p align="justify">
-As interfaces foram definidas a partir dos requisitos funcionais e casos de uso descritos no documento de levantamento de requisitos. Cada protótipo identifica o perfil que utiliza a tela, os requisitos atendidos e o fluxo principal representado. O conjunto contempla o acesso ao sistema, o cadastro de atletas, a configuração administrativa, a operação dos treinamentos e o acompanhamento da evolução dos alunos.
+As interfaces refletem os endpoints implementados na API do projeto: autenticação, cadastro de responsável e aluno, agendamento individual de treinamentos com fila de espera por sala e registro de treinamento pelo profissional. Cada protótipo identifica o perfil que utiliza a tela e o fluxo principal representado.
 </p>
 
 ## Protótipos de baixa fidelidade
 
-### Versão 1.0
+### Versão 2.0
 
 ## 1. Interface de Login e Acesso
 
-**Perfil:** Responsável, Profissional e Administração<br>
-**Requisito relacionado:** RF02
+**Perfil:** Responsável e Profissional
 
-Esta tela representa a porta de entrada do sistema. Ela permite autenticação, recuperação de senha e criação de conta para o responsável, atendendo ao controle de acesso dos diferentes perfis da aplicação.
+Esta tela representa a porta de entrada do sistema. Ela permite autenticação por token, criação de conta e encerramento da sessão.
 
 ```plantuml
 @startsalt
 {
-  <b>SISTEMA DE ALTA PERFORMANCE (GAAP)
+  <b>ACADEMIA DE ALTA PERFORMANCE (GAAP)
   Acesso restrito
   ==
-  E-mail: | "nome@exemplo.com        "
-  Senha:  | "********                "
+  Usuário: | "nome@exemplo.com        "
+  Senha:   | "********                "
   ==
-  [  ENTRAR NO SISTEMA  ]
+  [  ENTRAR  ]
   .
-  [ Esqueci minha senha ] | [ Criar nova conta (Responsável) ]
+  [ Criar nova conta ]
 }
 @endsalt
 ```
 
-**Relação com os requisitos:** atende ao login, logout e recuperação de senha previstos no RF02. A opção de criação de conta também encaminha para o cadastro inicial do responsável, relacionado ao RF01.
+**Relação com o código:** a autenticação utiliza token (`POST /api/auth/token/`), a criação de conta é pública (`POST /api/auth/register/`) e o logout invalida o token (`POST /api/auth/logout/`). Toda a API exige usuário autenticado.
 
 ## 2. Cadastro de Aluno / Atleta
 
-**Perfil:** Responsável<br>
-**Requisitos relacionados:** RF03, RF04 e UC03
+**Perfil:** Responsável
 
-O responsável utiliza esta interface para cadastrar uma criança e vinculá-la à própria conta. Os dados de contato são associados ao responsável legal, e a data de nascimento permite validar a faixa etária aceita pela academia.
+O responsável utiliza esta interface para cadastrar uma criança vinculada à própria conta. A data de nascimento é validada automaticamente: a academia atende exclusivamente crianças de 7 a 12 anos.
 
 ```plantuml
 @startsalt
@@ -59,219 +57,148 @@ O responsável utiliza esta interface para cadastrar uma criança e vinculá-la 
   ==
   Nome Completo do Atleta: | "                             "
   Data de Nascimento:      | "DD/MM/AAAA"
-  Contato de Emergência:   | "(  )       -      "
   ==
-  <i>* Atenção: o sistema aceita apenas atletas entre 7 e 12 anos (RF04).
+  <i>* A academia atende exclusivamente crianças de 7 a 12 anos.
   [  SALVAR CADASTRO  ] | [ Cancelar ]
 }
 @endsalt
 ```
 
-**Relação com os requisitos:** atende ao cadastro de um ou mais alunos vinculados ao responsável (RF03) e à validação automática da idade entre 7 e 12 anos (RF04). O fluxo corresponde ao UC03, incluindo o bloqueio do cadastro quando a idade estiver fora da faixa permitida.
+**Relação com o código:** corresponde ao `POST /api/alunos/`. O responsável é atribuído automaticamente a partir da conta autenticada e a matrícula é gerada pelo sistema no formato `ALU-<ano>-<código>`. Cadastros fora da faixa etária são rejeitados.
 
-## 3. Cadastro de Salas e Profissionais
+## 3. Cadastro de Profissional
 
-### 3.1 Cadastro de Sala de Treinamento
+**Perfil:** Profissional (autoatendimento, aprovado pela administração)
 
-**Perfil:** Administrador/Recepção<br>
-**Requisito relacionado:** RF06
-
-Antes de criar turmas e agendar treinamentos, a administração cadastra os espaços disponíveis. A capacidade máxima informada nesta tela será usada posteriormente para evitar superlotação.
+O profissional se cadastra informando nome e ocupação (tipo de serviço). O sistema gera um código profissional único e impede cadastro duplicado da mesma conta.
 
 ```plantuml
 @startsalt
 {
-  <b>CADASTRAR NOVA SALA DE TREINO
-  Painel da Administração
+  <b>CADASTRAR PROFISSIONAL
   ==
-  Nome da Sala:      | "Sala de Musculação Infantil "
-  Capacidade Máxima: | "15"
-  Recursos/Equip.:   | "Pesos adaptados, colchonetes"
+  Nome Completo:   | "                             "
+  Ocupação:        | ^Preparação Física^
+  Disponibilidade: | ^Disponível^
   ==
-  [  SALVAR SALA  ] | [ Voltar ]
+  [  SALVAR  ] | [ Voltar ]
 }
 @endsalt
 ```
 
-**Relação com os requisitos:** atende ao RF06, que exige o cadastro de campos ou espaços com capacidade máxima. Os dados cadastrados apoiam as validações de disponibilidade previstas no RF09 e no requisito não funcional de confiabilidade.
+**Relação com o código:** corresponde ao `POST /api/profissionais/`. O campo de ocupação aceita os seis tipos de serviço do catálogo. A conta não pode possuir mais de um perfil de profissional.
 
-### 3.2 Cadastro de Profissional
+## 4. Consulta de Salas e Serviços
 
-**Perfil:** Administrador/Recepção<br>
-**Requisito relacionado:** RF05
+**Perfil:** Qualquer usuário autenticado
 
-Esta interface registra os profissionais que ministrarão os treinamentos, suas especialidades e os períodos em que podem trabalhar. Essas informações serão utilizadas na montagem das turmas e na validação de conflitos de agenda.
+Lista das salas disponíveis com capacidade e dos serviços do catálogo, indicando a sala em que cada serviço acontece.
 
 ```plantuml
 @startsalt
 {
-  <b>CADASTRAR NOVO PROFISSIONAL
-  Painel da Administração
+  <b>SALAS E SERVIÇOS
   ==
-  Nome Completo:      | "                             "
-  Especialidade:      | ^Preparador Físico^
-  Dias Disponíveis:   | [X] Seg [X] Ter [ ] Qua [X] Qui [ ] Sex
-  Turno Disponível:   | ^Tarde (13h às 18h)^
+  <b>Sala                                            | <b>Capacidade
+  Área de Treinamento Funcional e Gramado Sintético | 20
+  Laboratório de Avaliação Física                   | 10
+  Consultório de Nutrição Esportiva                 | 4
+  Espaço de Fisioterapia e Recovery                 | 4
   ==
-  [  SALVAR PROFISSIONAL  ] | [ Voltar ]
+  <b>Serviço                 | <b>Duração | <b>Sala
+  Nutrição Esportiva         | 30 min     | Consultório de Nutrição
+  Fisioterapia               | 30 min     | Fisioterapia e Recovery
+  Recuperação Muscular       | 30 min     | Fisioterapia e Recovery
+  Preparação Física          | 30 min     | Treinamento Funcional
+  Treinamento Funcional      | 30 min     | Treinamento Funcional
+  Avaliação de Performance   | 30 min     | Laboratório de Avaliação
 }
 @endsalt
 ```
 
-**Relação com os requisitos:** atende ao RF05, permitindo cadastrar especialidade e disponibilidade do profissional. A disponibilidade será considerada na validação de agendamentos do RF09 e na prevenção de conflitos descrita nos requisitos não funcionais.
+**Relação com o código:** corresponde a `GET /api/salas/` e `GET /api/servicos/`. A escrita dessas entidades é feita pela administração (usuários staff).
 
-## 4. Consulta da Evolução do Atleta
-
-**Perfil:** Responsável<br>
-**Requisito relacionado:** RF18
-
-O responsável consulta o histórico de avaliações físicas e técnicas registradas pelos profissionais. A tela organiza os registros por data, foco do treinamento e observações, tornando a evolução do atleta compreensível para a família.
-
-```plantuml
-@startsalt
-{
-  <b>EVOLUÇÃO DO ATLETA
-  Acompanhamento Físico e Técnico
-  ==
-  Atleta Selecionado: | ^Pedro (9 anos)^
-  ==
-  <b>Data       | <b>Foco do Treino   | <b>Avaliação do Treinador (Profissional)
-  20/09/2026 | Prep. Física     | "Excelente ganho de força nas pernas."
-  15/09/2026 | Tática / Vídeo   | "Compreendeu bem o posicionamento defensivo."
-  10/09/2026 | Prevenção Lesões | "Mobilidade do tornozelo melhorou 20%."
-  ==
-  [ Imprimir Relatório ] | [ Voltar ao Início ]
-}
-@endsalt
-```
-
-**Relação com os requisitos:** atende ao RF18, que permite consultar a evolução física e técnica dos dependentes. Os dados exibidos dependem dos registros de presença e avaliações previstos no RF17, realizados pelo profissional após os treinamentos.
-
-## 5. Agenda e Lista de Alunos do Profissional
-
-**Perfil:** Profissional (Treinador/Preparador)<br>
-**Requisito relacionado:** RF16
-
-O profissional consulta a agenda diária, as salas, as turmas e a quantidade de alunos esperados. A ação “Fazer Chamada” representa o acesso ao registro de presença e às observações do treinamento.
-
-```plantuml
-@startsalt
-{
-  <b>MINHA AGENDA DE TREINAMENTOS
-  Portal do Profissional (Carlos - Prep. Físico)
-  ==
-  Data: | ^Hoje (23/09/2026)^
-  ==
-  <b>Horário | <b>Sala de Treino | <b>Turma (Foco) | <b>Alunos | <b>Ação
-  14:00   | Sala Funcional 1 | Sub-9 (Força) | 12/15  | [ Fazer Chamada ]
-  16:00   | Musculação 2     | Sub-12 (Base) | 15/15  | [ Fazer Chamada ]
-  ==
-  [ Ver Relatório Semanal ] | [ Sair ]
-}
-@endsalt
-```
-
-**Relação com os requisitos:** atende ao RF16, permitindo consultar a agenda individual e a lista de alunos de cada turma. A chamada encaminha para o RF17, que contempla o registro de presença, ausência e observações de avaliação.
-
-## 6. Agenda Diária Operacional
-
-**Perfil:** Administrador/Recepção<br>
-**Requisitos relacionados:** RF07, RF19, RF21 e RF22
-
-Esta tela oferece uma visão operacional dos treinamentos do dia. A administração acompanha salas, profissionais, ocupação e status, podendo iniciar o cadastro de turmas, bloquear uma sala ou imprimir a agenda.
-
-```plantuml
-@startsalt
-{
-  <b>AGENDA DIÁRIA OPERACIONAL
-  Painel da Administração / Recepção
-  ==
-  Filtro de Data: | [<] | ^Hoje - 23/09/2026^ | [>] | [ Hoje ]
-  ==
-  <b>Horário | <b>Sala Alocada | <b>Foco do Treino | <b>Profissional | <b>Ocupação | <b>Status
-  14:00 | Sala Funcional 1 | Prep. Física (Sub-9) | Carlos Silva | 15/15 | [ LOTADA ]
-  15:00 | Fisioterapia     | Prevenção (Sub-10)   | Mariana Rios | 05/08 | [ DISPONÍVEL ]
-  16:00 | Musculação 1     | Força Base (Sub-12)  | Carlos Silva | 12/15 | [ CONFIRMADA ]
-  17:00 | Sala Multiuso    | Análise Tática       | Roberto Dias | 00/20 | [ CANCELADA ]
-  ==
-  [ Cadastrar Nova Turma ] | [ Bloquear Sala para Manutenção ] | [ Imprimir Agenda ]
-}
-@endsalt
-```
-
-**Relação com os requisitos:** a agenda apoia o cadastro e acompanhamento das turmas do RF07, o dashboard operacional do RF21 e o controle de ocupação relacionado ao RF10. O status “CANCELADA” representa o cancelamento administrativo do RF19. A indicação de turma lotada também prepara a evolução para fila de espera do RF22.
-
-## 7. Relatório Completo de Treinamento
-
-**Perfil:** Administração, Recepção e Coordenação Técnica<br>
-**Requisitos relacionados:** RF17, RF18, RF19 e RF20
-
-O relatório consolida os dados da sessão concluída, incluindo turma, sala, profissional, frequência e observações individuais. Ele serve para acompanhamento operacional e para comunicar aos responsáveis informações relevantes sobre o treinamento.
-
-```plantuml
-@startsalt
-{
-  <b>RELATÓRIO DE TREINAMENTO CONCLUÍDO
-  Visão Detalhada da Sessão (Coordenação Técnica)
-  ==
-  <b>Informações da Sessão
-  Turma / Foco:  | Preparação Física (Sub-9 e Sub-10)
-  Data e Horário:| 23/09/2026 - das 14:00 às 15:30
-  Profissional:  | Carlos Silva (Preparador Físico)
-  Sala Utilizada:| Sala Funcional 1
-  ==
-  <b>Métricas de Frequência
-  Capacidade da Turma: 15 | Alunos Presentes: 14 | Faltas: 1
-  ==
-  <b>Histórico de Avaliações Técnicas (Diário)
-  <b>Atleta | <b>Presença | <b>Observações do Treinador
-  Pedro (9 anos) | [X] | "Excelente explosão muscular nos saltos."
-  Lucas (9 anos) | [ ] | "Falta justificada pelo responsável (atestado)."
-  João (10 anos) | [X] | "Leve desconforto no joelho. Treino adaptado."
-  ==
-  [ Exportar para PDF ] | [ Enviar Resumo aos Responsáveis ] | [ Voltar aos Relatórios ]
-}
-@endsalt
-```
-
-**Relação com os requisitos:** consolida os registros de presença e avaliações do RF17, fornecendo informações que podem ser consultadas pelo responsável conforme o RF18. O envio do resumo representa uma notificação interna relacionada ao RF20, enquanto a visão da sessão auxilia a administração no acompanhamento de cancelamentos e ocorrências do RF19.
-
-## 8. Pagamento do treinamento
+## 5. Agendamento de Treinamento
 
 **Perfil:** Responsável
-**Requisitos relacionados:** RF23, RF24, RF25, RF26 e RF27
-**Caso de uso:** UC07
 
-Após a validação do agendamento, o responsável visualiza o valor e confirma o pagamento. A tela não coleta nem exibe dados financeiros sensíveis no backend; o processamento é realizado pela API fornecida pela equipe mobile.
+O responsável seleciona o aluno, o serviço, o profissional, a sala e a data/hora. Se a sala já atingiu a capacidade no horário, o agendamento entra automaticamente em fila de espera.
 
 ```plantuml
 @startsalt
 {
-  <b>PAGAMENTO DO TREINAMENTO
-  Confirmação do agendamento de Pedro
+  <b>AGENDAR TREINAMENTO
+  Portal do Responsável
   ==
-  Turma: | ^Preparação Física - Sub-9^
-  Data:  | "23/09/2026 - 14:00"
-  Valor: | "R$ 80,00"
-  Status:| ^Aguardando pagamento^
+  Aluno:        | ^Pedro (9 anos)^
+  Serviço:      | ^Preparação Física^
+  Profissional: | ^Carlos Silva^
+  Sala:         | ^Área de Treinamento Funcional^
+  Data e Hora:  | "12/10/2026 14:00"
   ==
-  [  PAGAR  ] | [ Voltar ]
+  [  CONFIRMAR AGENDAMENTO  ] | [ Cancelar ]
 }
 @endsalt
 ```
 
-**Estados da tela:**
+**Estados do agendamento:**
 
-- **Aprovado:** o sistema confirma o agendamento, reserva a vaga e exibe o identificador da transação.
-- **Pendente:** o sistema informa que aguarda retorno da API e não confirma definitivamente a vaga.
-- **Recusado ou erro:** o sistema informa a falha e permite nova tentativa sem armazenar os dados do meio de pagamento.
+- **Ativo:** havia vagas na sala no horário; o treino está confirmado.
+- **Fila de espera:** a sala atingiu a capacidade; o sistema informa a posição do aluno na fila.
 
-**Relação com os requisitos:** o fluxo atende à integração prevista nos RF23 a RF27 e ao UC07. O backend registra somente identificador, valor, status e data retornados pela API mobile.
+**Relação com o código:** corresponde ao `POST /api/agendamentos/`. Apenas o responsável do aluno pode agendar. O sistema conta os agendamentos ativos para a mesma sala e horário e compara com a capacidade da sala.
+
+## 6. Consulta da Agenda e da Fila de Espera
+
+**Perfil:** Responsável
+
+O responsável consulta os agendamentos dos dependentes, incluindo status e posição na fila de espera.
+
+```plantuml
+@startsalt
+{
+  <b>AGENDA DOS DEPENDENTES
+  ==
+  <b>Aluno | <b>Serviço             | <b>Data/Hora     | <b>Status          | <b>Fila
+  Pedro    | Preparação Física     | 12/10 14:00      | Ativo              | -
+  Pedro    | Avaliação Performance | 15/10 10:00      | Fila de espera     | 3
+  ==
+  [ Cancelar selecionado ] | [ Atualizar ]
+}
+@endsalt
+```
+
+**Relação com o código:** corresponde a `GET /api/agendamentos/` e `DELETE/PATCH /api/agendamentos/{id}/`. A lista mostra somente agendamentos dos alunos vinculados ao responsável autenticado. O campo de fila é calculado pela ordem de criação dos agendamentos em espera.
+
+## 7. Registro de Treinamento (Profissional)
+
+**Perfil:** Profissional
+
+Após o treinamento, o profissional registra a presença do aluno, observações e as avaliações física e técnica. Cada agendamento admite um único registro.
+
+```plantuml
+@startsalt
+{
+  <b>REGISTRAR TREINAMENTO
+  Portal do Profissional
+  ==
+  Agendamento:        | "Agendamento 42 - Pedro"
+  Presença:           | ^Presente^
+  Observações:        | "Excelente explosão muscular nos saltos."
+  Avaliação Física:   | "Ganho de força nas pernas."
+  Avaliação Técnica:  | "Posicionamento defensivo melhorou."
+  ==
+  [  SALVAR REGISTRO  ] | [ Voltar ]
+}
+@endsalt
+```
+
+**Relação com o código:** corresponde a `POST /api/registros/`. Apenas usuários com perfil de profissional podem criar registros; o profissional é atribuído automaticamente a partir da conta autenticada. O responsável consulta os registros somente dos seus dependentes.
 
 ## Conclusão
 
 <p align="justify">
-Os protótipos representam os principais fluxos identificados no levantamento de requisitos: autenticação, cadastro de dependentes, configuração da infraestrutura, consulta da agenda, pagamento via API mobile, acompanhamento da evolução e consolidação dos treinamentos. Por serem protótipos de baixa fidelidade, as telas concentram-se na hierarquia das informações e nas ações essenciais; detalhes visuais, identidade da marca e validações de interação deverão ser definidos nas próximas versões.
+Os protótipos representam os fluxos implementados na API atual: autenticação por token, cadastro de dependente com validação de idade, cadastro de profissional, consulta de salas e serviços, agendamento individual com fila de espera por sala e registro de treinamento pelo profissional. As versões anteriores deste documento, baseadas em turmas, painel administrativo e pagamentos, foram substituídas para manter a documentação alinhada ao código.
 </p>
 
 ## Referências
@@ -281,6 +208,7 @@ Os protótipos representam os principais fluxos identificados no levantamento de
 
 ## Autor(es)
 
-| Data       | Versão | Descrição                                   | Autor(es)     |
-| ---------- | ------ | ------------------------------------------- | ------------- |
-| 23/09/2026 | 1.0    | Criação dos protótipos de baixa fidelidade. | Luiz Fernando |
+| Data       | Versão | Descrição                                                                     | Autor(es)     |
+| ---------- | ------ | ----------------------------------------------------------------------------- | ------------- |
+| 23/09/2026 | 1.0    | Criação dos protótipos de baixa fidelidade.                                   | Luiz Fernando |
+| 13/11/2026 | 2.0    | Reescrita dos protótipos para refletir os endpoints implementados na API.     | Ricardo Costa |

@@ -5,53 +5,29 @@ title: Diagrama de Classes
 
 ## Diagrama de Classes
 
+### Versão 2.0 — alinhada à implementação
+
 ### Objetivo
 
 O Diagrama de Classes é uma representação visual das classes, seus atributos, métodos e os relacionamentos entre elas. Ele é fundamental para a modelagem orientada a objetos e serve como base para a implementação do sistema.
-
-### Componentes do Diagrama de Classes
-
-Este documento define um modelo para:
-
-1. **Inserção do Diagrama de Classes Conceitual** (visão de domínio).
-2. **Evolução para o Diagrama de Classes de Especificação** (visão de projeto).
-
-Ambos devem ser derivados de:
-
-- Casos de uso;
-- Diagrama de casos de uso;
-- Documento de levantamento de requisitos;
-- Protótipo de baixa fidelidade.
-
-### Fontes de entrada obrigatórias
-
-- **Levantamento de requisitos**: requisitos funcionais e não funcionais.
-- **Casos de uso**: atores, fluxos principal e alternativos.
-- **Diagrama de casos de uso**: escopo e fronteiras do sistema.
-- **Protótipo de baixa fidelidade**: entidades percebidas na interface e regras de navegação.
 
 ### 1) Diagrama de Classes Conceitual
 
 #### 1.1 Finalidade
 
-Representar os principais conceitos do domínio da academia de alta performance esportiva, seus perfis de acesso e os relacionamentos envolvidos no cadastro, agendamento e acompanhamento dos treinamentos.
+Representar os principais conceitos do domínio da academia de alta performance esportiva e os relacionamentos envolvidos no cadastro, agendamento e acompanhamento dos treinamentos.
 
 #### 1.2 Escopo
 
-O modelo contempla as principais entidades identificadas nos requisitos, sem incluir componentes técnicos de implementação:
+O modelo contempla as entidades **implementadas** no backend (`app/models.py`):
 
-- **Perfis de acesso**: `Usuario`, `Responsavel`, `Profissional` e `Administrador`;
-- **Cadastro**: `Aluno` e `Sala`;
-- **Agendamento e treinamento**: `Turma`, `Agendamento` e `RegistroTreinamento`;
-- **Pagamentos e controle complementar**: `Pagamento`, `FilaEspera` e `Notificacao`.
+- **Perfis de acesso:** `Responsavel` e `Profissional`, ambos ligados a uma conta de usuário (`User` do Django) por relacionamento um-para-um;
+- **Cadastro:** `Aluno` e `Sala`;
+- **Operação:** `Servico`, `Agendamento` e `RegistroTreinamento`.
 
-O diagrama representa generalização entre `Usuario` e os perfis de acesso, além das multiplicidades das associações. As entidades apresentadas são as principais do problema; portanto, o modelo não pretende representar todas as entidades possíveis do sistema.
+> **Nota:** as versões anteriores deste documento incluíam as classes `Turma`, `Pagamento`, `FilaEspera`, `Notificacao` e `Administrador`. Essas entidades não foram implementadas: o agendamento é individual por serviço, a fila de espera é representada pelo status do próprio agendamento (e não por uma entidade separada) e não há integração financeira ou de notificações.
 
-#### 1.3 Notação mínima
-
-O código fornecido para o diagrama conceitual define nomes de classes, generalizações, associações, papéis e multiplicidades. Os atributos não foram detalhados na fonte recebida, pois o objetivo desta versão é destacar os conceitos e seus vínculos no domínio.
-
-#### 1.4 Fonte PlantUML
+#### 1.3 Fonte PlantUML
 
 ```plantuml
 @startuml AcademiaEsportiva_Classes_Conceitual
@@ -66,47 +42,26 @@ skinparam shadowing false
 skinparam packageStyle rectangle
 
 ' =========================================================
-' PERFIS DE ACESSO
+' PERFIS DE ACESSO (vinculados 1:1 ao User do Django)
 ' =========================================================
 
-	abstract class Usuario
-
 	class Responsavel
-
 	class Profissional
-
-	class Administrador
-
-	Usuario <|-- Responsavel
-	Usuario <|-- Profissional
-	Usuario <|-- Administrador
 
 ' =========================================================
 ' CADASTRO
 ' =========================================================
-	class Aluno
 
+	class Aluno
 	class Sala
 
 ' =========================================================
-' AGENDAMENTO E TREINAMENTO
+' OPERAÇÃO
 ' =========================================================
 
-	class Turma
-
+	class Servico
 	class Agendamento
-
 	class RegistroTreinamento
-
-	class Pagamento
-
-' =========================================================
-' CONTROLE COMPLEMENTAR
-' =========================================================
-
-	class FilaEspera
-
-	class Notificacao
 
 ' =========================================================
 ' RELACIONAMENTOS PRINCIPAIS
@@ -116,101 +71,61 @@ Responsavel "1" -- "1..*" Aluno : possui
 
 Aluno "1" -- "0..*" Agendamento : possui
 
-Agendamento "0..*" -- "1" Turma : pertence
+Profissional "1" -- "0..*" Agendamento : atende
 
-Profissional "1" -- "0..*" Turma : ministra
+Sala "1" -- "0..*" Agendamento : recebe
 
-Sala "1" -- "0..*" Turma : utiliza
+Servico "1" -- "0..*" Agendamento : motiva
+
+Profissional "1" -- "0..*" Servico : ministra
 
 Agendamento "1" -- "0..1" RegistroTreinamento : gera
 
-Agendamento "1" -- "0..1" Pagamento : possui
-
-Aluno "1" -- "0..*" FilaEspera : participa
-
-Turma "1" -- "0..*" FilaEspera : possui
-
-Usuario "1" -- "0..*" Notificacao : recebe
-
-Agendamento "1" -- "0..*" Notificacao : origina
+Profissional "1" -- "0..*" RegistroTreinamento : registra
 
 @enduml
 ```
 
-#### 1.5 Descrição das classes e regras de domínio
+#### 1.4 Descrição das classes e regras de domínio
 
-| Classe                | Descrição e responsabilidade no domínio                                                                                                         |
-| --------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| `Usuario`             | Conceito geral de usuário do sistema, especializado pelos perfis de acesso.                                                                     |
-| `Responsavel`         | Pessoa legalmente responsável por um ou mais alunos; cadastra dependentes, agenda e cancela treinamentos e consulta sua evolução.               |
-| `Profissional`        | Treinador que ministra turmas, consulta sua agenda e registra presença e avaliações.                                                            |
-| `Administrador`       | Perfil responsável pela gestão de profissionais, salas, turmas, horários, conflitos e cancelamentos operacionais.                               |
-| `Aluno`               | Criança ou atleta entre 7 e 12 anos, vinculada a um responsável e beneficiária dos agendamentos e registros de treinamento.                     |
-| `Sala`                | Espaço ou campo utilizado por uma turma, sujeito a capacidade e disponibilidade.                                                                |
-| `Turma`               | Grupo de treinamento com modalidade, faixa etária, capacidade, sala, horário e profissional responsável.                                        |
-| `Agendamento`         | Reserva de um treinamento para um aluno em uma turma, com data, horário e status.                                                               |
-| `RegistroTreinamento` | Registro associado ao treinamento para presença, ausência e observações de avaliação.                                                           |
-| `Pagamento`           | Registro da tentativa de cobrança do agendamento, com identificador externo, valor, status e data; o processamento é realizado pela API mobile. |
-| `FilaEspera`          | Participação de um aluno na fila de uma turma lotada.                                                                                           |
-| `Notificacao`         | Comunicação recebida por usuários sobre criação, alteração ou cancelamento de agendamentos.                                                     |
+| Classe                | Descrição e responsabilidade no domínio                                                                                     |
+| --------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| `Responsavel`         | Pessoa legalmente responsável por um ou mais alunos; cadastra dependentes, agenda e cancela treinamentos e consulta sua evolução. Vinculada a uma conta de usuário. |
+| `Profissional`        | Treinador que atende agendamentos e registra presença e avaliações. Possui ocupação (tipo de serviço) e disponibilidade. Vinculado a uma conta de usuário. |
+| `Aluno`               | Criança entre 7 e 12 anos, vinculada a um responsável e beneficiária dos agendamentos e registros de treinamento. Matrícula única gerada automaticamente. |
+| `Sala`                | Espaço físico com nome e capacidade; a capacidade limita a quantidade de agendamentos ativos no mesmo horário.                |
+| `Servico`             | Modalidade de treinamento do catálogo, com descrição, duração e sala correspondente; relaciona-se com profissionais por muitos-para-muitos. |
+| `Agendamento`         | Reserva de um treinamento para um aluno, com data/hora, profissional, serviço, sala opcional e status (`ativo` ou `fila_espera`). |
+| `RegistroTreinamento` | Registro 1:1 com o agendamento: presença, observações e avaliações física e técnica. Sempre criado pelo profissional.         |
 
-Regras de negócio representadas ou derivadas dos requisitos:
+Regras de negócio representadas ou derivadas do código:
 
-- Um `Responsavel` possui um ou mais `Aluno`s (`RF03`, `UC03`), e a idade do aluno deve estar entre 7 e 12 anos (`RF04`).
-- Cada `Agendamento` pertence a uma `Turma` e está vinculado a um `Aluno` (`RF08`, `UC01`).
-- A turma é ministrada por um `Profissional` e utiliza uma `Sala`; disponibilidade, capacidade e conflitos devem ser validados (`RF05`–`RF11`).
-- Um agendamento pode gerar no máximo um `RegistroTreinamento`; a presença e as avaliações são registradas pelo profissional (`RF17`).
-- Alunos podem participar da `FilaEspera` de turmas lotadas (`RF10`, `RF22`).
-- `Notificacao` é originada por um agendamento e recebida por um usuário (`RF20`).
-- `Pagamento` pertence a um agendamento e registra apenas os dados retornados pela API mobile; dados sensíveis do meio de pagamento não fazem parte do domínio do backend (`RF23`–`RF27`).
+- A idade do `Aluno` deve estar entre 7 e 12 anos, validada automaticamente no salvamento.
+- A `matricula` do aluno e o `codigo_profissional` são únicos e gerados automaticamente (`ALU-<ano>-<código>` e `PRO-<ano>-<código>`).
+- A `ocupacao` do `Profissional` deve ser um dos serviços do catálogo.
+- Todo `Agendamento` está vinculado obrigatoriamente a um `Servico`.
+- Quando a capacidade da `Sala` no horário é atingida, o agendamento recebe status `fila_espera` e posição calculada pela ordem de criação.
+- Cada `Agendamento` gera no máximo um `RegistroTreinamento`, criado pelo profissional.
 
-#### 1.6 Rastreabilidade
+#### 1.5 Rastreabilidade
 
-| Classe Conceitual     | Requisito(s)                             | Caso(s) de Uso         | Tela/Protótipo                         |
-| --------------------- | ---------------------------------------- | ---------------------- | -------------------------------------- |
-| `Usuario`             | RF01, RF02, RF20                         | UC01, UC02, UC06       | Seleção do aluno; confirmação          |
-| `Responsavel`         | RF01–RF03, RF08, RF12, RF13, RF18        | UC01, UC02, UC03, UC06 | Seleção do aluno; ver agenda           |
-| `Profissional`        | RF05, RF07, RF09, RF16, RF17, RF21       | UC04, UC05, UC06       | Confirmação: profissional              |
-| `Administrador`       | RF05–RF07, RF15, RF19, RF21              | UC02, UC04, UC06       | Não especificada no protótipo          |
-| `Aluno`               | RF03, RF04, RF08, RF11, RF12, RF17, RF18 | UC01, UC03, UC06       | Seleção do aluno                       |
-| `Sala`                | RF06, RF09, RF19, RF21                   | UC01, UC04             | Seleção da turma; confirmação          |
-| `Turma`               | RF07–RF10, RF16, RF21, RF22              | UC01, UC04, UC06       | Seleção da turma                       |
-| `Agendamento`         | RF08–RF15, RF19, RF20                    | UC01, UC02, UC06       | Seleção da turma; confirmação; sucesso |
-| `RegistroTreinamento` | RF17, RF18                               | UC05                   | Não especificada no protótipo          |
-| `FilaEspera`          | RF10, RF14, RF22                         | UC01                   | Seleção da turma                       |
-| `Notificacao`         | RF19, RF20                               | UC01, UC02             | Tela de sucesso                        |
-| `Pagamento`           | RF23–RF27                                | UC01, UC07             | Tela de pagamento e confirmação        |
+| Classe Conceitual     | Requisito(s)                   | Caso(s) de Uso         |
+| --------------------- | ------------------------------- | ----------------------- |
+| `Responsavel`         | RF01–RF04, RF09, RF14, RF15     | UC01, UC02, UC03, UC06  |
+| `Profissional`        | RF05, RF08, RF16, RF17          | UC04, UC05, UC06        |
+| `Aluno`               | RF03, RF04, RF09, RF14          | UC01, UC03, UC06        |
+| `Sala`                | RF06, RF10, RF11                | UC01                    |
+| `Servico`             | RF07, RF08, RF09                | UC01                    |
+| `Agendamento`         | RF09–RF15                       | UC01, UC02, UC06        |
+| `RegistroTreinamento` | RF16, RF17, RF18                | UC05, UC06              |
 
-#### 1.7 Critérios de validação
-
-- Todas as classes do diagrama possuem vínculo com requisitos e/ou casos de uso.
-- Não foram incluídas classes técnicas, como repositórios ou controladores.
-- As associações e multiplicidades foram mantidas conforme o código fornecido.
-- O modelo cobre os principais fluxos de cadastro de aluno, agendamento, cancelamento, registro de treinamento, notificações e fila de espera.
-
-### 2) Transição para Diagrama de Classes de Especificação
+### 2) Diagrama de Classes de Especificação
 
 #### 2.1 Objetivo
 
-Refinar o modelo conceitual para uma estrutura orientada à implementação, preservando as classes, heranças, associações e multiplicidades relevantes para os requisitos.
+Refinar o modelo conceitual com os atributos, tipos e operações exatamente como implementados no código.
 
-#### 2.2 Regras de refinamento
-
-O código recebido para a especificação detalha atributos, tipos, visibilidades e operações das classes de domínio. Ele não utiliza estereótipos de `entity`, `service` ou `boundary`, nem introduz interfaces ou classes técnicas, mantendo o escopo nas principais entidades do problema.
-
-O refinamento deverá preservar as validações de idade, capacidade, disponibilidade, conflitos de horário, prazo de cancelamento e controle de acesso por perfil (`RF04`, `RF09`–`RF11`, `RF15` e requisitos não funcionais de segurança e confiabilidade).
-
-#### 2.3 Itens esperados por classe
-
-As classes devem manter responsabilidade, dependências e invariantes alinhadas aos requisitos. Os atributos e operações abaixo são os que constam na fonte recebida; regras de negócio adicionais são documentadas na seção 3.3.
-
-### 3) Diagrama de Classes de Especificação
-
-#### 3.1 Conteúdo mínimo
-
-O diagrama recebido contém as classes de domínio, a generalização de `Usuario`, atributos tipados, operações e associações com multiplicidade. Não contém interfaces, classes de serviço ou de fronteira. Por fidelidade ao material fornecido, o código é reproduzido abaixo sem alterações.
-
-#### 3.2 Fonte PlantUML
+#### 2.2 Fonte PlantUML
 
 ```plantuml
 @startuml AcademiaEsportiva_Classes_Especificacao
@@ -228,152 +143,71 @@ skinparam packageStyle rectangle
 ' PERFIS DE ACESSO
 ' =========================================================
 
-	abstract class Usuario {
-		- id: String
-		- nome: String
-		- email: String
-		- senha: String
-		- perfil: String
-
-		+ autenticar()
-		+ encerrarSessao()
-		+ recuperarSenha()
-	}
-
 	class Responsavel {
-		- telefone: String
-
-		+ cadastrarAluno()
-		+ agendarTreinamento()
-		+ cancelarAgendamento()
-		+ consultarAgenda()
-		+ consultarEvolucao()
+		+ profile: OneToOne(User)
+		+ nome: String(150)
+		+ cpf: String(14)
+		+ telefone: String(20)
 	}
 
 	class Profissional {
-		- especialidade: String
-		- disponibilidade: String
-
-		+ consultarAgenda()
-		+ consultarTurmas()
-		+ registrarPresenca()
-		+ registrarAvaliacao()
+		+ codigo_profissional: String(50) «unique»
+		+ profile: OneToOne(User)
+		+ nome: String(150)
+		+ ocupacao: String «choice: TIPOS_SERVICO»
+		+ disponibilidade: String «DISPONIVEL | INDISPONIVEL»
+		+ save() «gera PRO-<ano>-<código>»
 	}
-
-	class Administrador {
-
-		+ cadastrarProfissional()
-		+ cadastrarSala()
-		+ cadastrarTurma()
-		+ cancelarTreinamento()
-		+ consultarRelatorios()
-		+ consultarDashboard()
-	}
-
-	Usuario <|-- Responsavel
-	Usuario <|-- Profissional
-	Usuario <|-- Administrador
 
 ' =========================================================
 ' CADASTRO
 ' =========================================================
-	class Aluno {
-		- id: String
-		- nome: String
-		- dataNascimento: Date
-		- dadosContato: String
-		- status: String
 
-		+ calcularIdade()
-		+ validarFaixaEtaria()
+	class Aluno {
+		+ matricula: String(50) «unique»
+		+ nome: String(100)
+		+ data_nascimento: Date
+		+ responsavel: FK(Responsavel)
+		+ status: String «ativo | inativo»
+		+ idade: Integer «property»
+		+ clean() «valida 7 a 12 anos»
+		+ save() «gera ALU-<ano>-<código>»
 	}
 
 	class Sala {
-		- id: String
-		- nome: String
-		- capacidadeMaxima: Integer
-
-		+ verificarDisponibilidade()
+		+ nome: String(100) «choice: SALAS»
+		+ capacidade: Integer
+		+ disponivel: Boolean
 	}
 
 ' =========================================================
-' AGENDAMENTO E TREINAMENTO
+' OPERAÇÃO
 ' =========================================================
 
-	class Turma {
-		- id: String
-		- modalidade: String
-		- faixaEtariaMin: Integer
-		- faixaEtariaMax: Integer
-		- capacidadeMaxima: Integer
-
-		+ verificarDisponibilidade()
-		+ verificarCapacidade()
+	class Servico {
+		+ nome: String «choice: TIPOS_SERVICO, unique»
+		+ descricao: Text
+		+ duracao_minutos: Integer «default 30»
+		+ profissionais: M2M(Profissional)
 	}
 
 	class Agendamento {
-		- id: String
-		- dataHora: DateTime
-		- status: String
-
-		+ confirmar()
-		+ cancelar()
-		+ validarDisponibilidade()
+		+ data_hora: DateTime
+		+ aluno: FK(Aluno)
+		+ profissional: FK(Profissional)
+		+ status: String «ativo | inativo»
+		+ sala: FK(Sala) «opcional»
+		+ servico: FK(Servico) «obrigatório»
+		+ criado_em: DateTime «auto»
 	}
 
 	class RegistroTreinamento {
-		- id: String
-		- presenca: String
-		- observacoes: String
-		- avaliacaoFisica: String
-		- avaliacaoTecnica: String
-
-		+ registrarPresenca()
-		+ registrarAvaliacao()
-	}
-
-	class Servico {
-	   - id: String
-       - nome: String 
-       - descricao: String
-       - duracao: Date
-
-    }
-    
-	class Pagamento {
-		- id: String
-		- idTransacaoExterna: String
-		- valor: Decimal
-		- status: String
-		- dataTentativa: DateTime
-
-		+ solicitar()
-		+ atualizarStatus()
-		+ validarAprovacao()
-	}
-
-' =========================================================
-' CONTROLE COMPLEMENTAR
-' =========================================================
-
-	class FilaEspera {
-		- id: String
-		- posicao: Integer
-		- status: String
-
-		+ entrarNaFila()
-		+ sairDaFila()
-		+ atualizarPosicao()
-	}
-
-	class Notificacao {
-		- id: String
-		- mensagem: String
-		- tipo: String
-		- dataHora: DateTime
-		- lida: Boolean
-
-		+ marcarComoLida()
+		+ agendamento: OneToOne(Agendamento)
+		+ profissional: FK(Profissional)
+		+ presenca: String(50)
+		+ observacoes: Text
+		+ avaliacao_fisica: Text
+		+ avaliacao_tecnica: Text
 	}
 
 ' =========================================================
@@ -384,90 +218,38 @@ Responsavel "1" -- "1..*" Aluno : possui
 
 Aluno "1" -- "0..*" Agendamento : possui
 
-Agendamento "0..*" -- "1" Turma : pertence
+Profissional "1" -- "0..*" Agendamento : atende
 
-Profissional "1" -- "0..*" Turma : ministra
+Sala "1" -- "0..*" Agendamento : recebe
 
-Sala "1" -- "0..*" Turma : utiliza
+Servico "1" -- "0..*" Agendamento : motiva
 
-Agendamento " 1" -- "0..1" RegistroTreinamento : gera
+Profissional "0..*" -- "0..*" Servico : ministra
 
-Agendamento "1" -- "0..1" Pagamento : possui
+Agendamento "1" -- "0..1" RegistroTreinamento : gera
 
-Aluno "1" -- "0..*" FilaEspera : participa
-
-Turma "1" -- "0..*" FilaEspera : possui
-
-Usuario "1" -- "0..*" Notificacao : recebe
-
-Agendamento "1" -- "0..*" Notificacao : origina
+Profissional "1" -- "0..*" RegistroTreinamento : registra
 
 @enduml
 ```
 
-#### 3.3 Responsabilidades, restrições e rastreabilidade
+#### 2.3 Invariantes implementadas
 
-As responsabilidades são as mesmas identificadas no modelo conceitual, agora apoiadas pelos atributos e operações presentes na fonte de especificação:
+- `Aluno.idade` deve estar entre 7 e 12 anos; caso contrário o salvamento falha (`clean()`).
+- `Aluno.matricula` e `Profissional.codigo_profissional` são únicos e gerados no primeiro salvamento.
+- `Responsavel.profile` e `Profissional.profile` referenciam a mesma conta de usuário por relações um-para-um distintas (`perfil_responsavel` e `profile_profissional`).
+- O limite do `Agendamento` por sala/horário é aplicado na camada da API (`AgendamentoSerializer.validate`), comparando agendamentos ativos com `Sala.capacidade`.
+- A posição na fila de espera (`posicao_fila`) é calculada pela contagem de agendamentos em `fila_espera` criados anteriormente para a mesma sala e horário.
 
-| Classe de Especificação | Origem Conceitual     | Requisito(s)                             | Caso(s) de Uso         |
-| ----------------------- | --------------------- | ---------------------------------------- | ---------------------- |
-| `Usuario`               | `Usuario`             | RF01, RF02, RF20                         | UC01, UC02, UC06       |
-| `Responsavel`           | `Responsavel`         | RF01–RF03, RF08, RF12, RF13, RF18        | UC01, UC02, UC03, UC06 |
-| `Profissional`          | `Profissional`        | RF05, RF07, RF16, RF17                   | UC04, UC05, UC06       |
-| `Administrador`         | `Administrador`       | RF05–RF07, RF15, RF19, RF21              | UC02, UC04, UC06       |
-| `Aluno`                 | `Aluno`               | RF03, RF04, RF08, RF11, RF12, RF17, RF18 | UC01, UC03, UC06       |
-| `Sala`                  | `Sala`                | RF06, RF09, RF19, RF21                   | UC01, UC04             |
-| `Turma`                 | `Turma`               | RF07–RF10, RF16, RF21, RF22              | UC01, UC04, UC06       |
-| `Agendamento`           | `Agendamento`         | RF08–RF15, RF19, RF20                    | UC01, UC02, UC06       |
-| `RegistroTreinamento`   | `RegistroTreinamento` | RF17, RF18                               | UC05                   |
-| `FilaEspera`            | `FilaEspera`          | RF10, RF14, RF22                         | UC01                   |
-| `Notificacao`           | `Notificacao`         | RF19, RF20                               | UC01, UC02             |
+#### 2.4 Critérios de qualidade
 
-Invariantes que deverão ser implementadas na especificação:
-
-- `Aluno` deve possuir idade entre 7 e 12 anos no cadastro (`RF04`).
-- `Agendamento` só pode ser confirmado se aluno, profissional, sala e turma estiverem disponíveis (`RF09`).
-- A capacidade máxima da `Turma` não pode ser ultrapassada (`RF10`).
-- Não pode existir agendamento duplicado para o mesmo aluno no mesmo horário (`RF11`).
-- O cancelamento respeita o prazo mínimo de oito horas indicado em `UC02`, salvo autorização administrativa (`RF15`).
-- Operações concorrentes não podem alocar a mesma sala, turma ou profissional em conflito, conforme o requisito não funcional de confiabilidade.
-
-#### 3.4 Critérios de qualidade
-
-- Os nomes permanecem alinhados ao domínio e aos requisitos.
+- Os nomes das classes e atributos correspondem literalmente ao código-fonte.
 - Todas as classes possuem responsabilidade e rastreabilidade identificadas.
-- As relações mantêm as multiplicidades do código fornecido.
-- A especificação contém atributos, tipos, visibilidades e operações; estereótipos e componentes técnicos não foram incluídos no escopo do código recebido.
+- As relações mantêm as multiplicidades implementadas.
 
-### 4) Estrutura de versionamento e revisão
+## Versionamento
 
-- **Versão**: `v0.1`
-- **Data**: `23/09/2026`
-- **Autor(es)**: `<Victor Coutinho>`
-- **Revisor(es)**: `<Luiz Fernando, Giovanna Sales, Ricardo Costa>`
-- **Resumo da alteração**: Documentação dos diagramas conceitual e de especificação, com descrições, regras de domínio e tabelas de rastreabilidade baseadas em `levreq.md`.
-
-### 5) Entregáveis
-
-- Diagrama de Classes Conceitual: fonte PlantUML incluída na seção 1.4.
-- Diagrama de Classes de Especificação: fonte PlantUML incluída na seção 3.2.
-- Tabelas de rastreabilidade preenchidas nas seções 1.6 e 3.3.
-- Registro de validação e pendências documentados nas seções 1.7 e 3.4.
-
-#### Registro de validação
-
-| Item                                   | Situação                                                                 |
-| -------------------------------------- | ------------------------------------------------------------------------ |
-| Classes principais do domínio          | Validado contra os requisitos e o código fornecido                       |
-| Relacionamentos e multiplicidades      | Mantidos conforme os dois diagramas recebidos                            |
-| Rastreabilidade                        | Preenchida com requisitos, casos de uso e telas descritas em `levreq.md` |
-| Atributos e operações da especificação | Validados contra a fonte PlantUML recebida                               |
-| Revisão com equipe e stakeholders      | Pendente de realização                                                   |
-
-#### Complemento de pagamento
-
-| Classe      | Requisitos | Casos de uso | Regra principal                                                                                               |
-| ----------- | ---------- | ------------ | ------------------------------------------------------------------------------------------------------------- |
-| `Pagamento` | RF23–RF27  | UC01 e UC07  | Confirma o agendamento somente com status **"aprovado"** e não armazena dados sensíveis do meio de pagamento. |
-
-O `Pagamento` mantém o identificador externo, valor, status e data da tentativa retornados pela API mobile. A API mobile é o sistema responsável pelo processamento financeiro; o backend realiza a integração, a rastreabilidade e a atualização do agendamento.
+| Versão | Data       | Autor(es)        | Descrição                                                                                                    |
+| ------ | ---------- | ---------------- | -------------------------------------------------------------------------------------------------------------- |
+| v0.1   | 23/09/2026 | Victor Coutinho  | Documentação dos diagramas conceitual e de especificação.                                                     |
+| v2.0   | 13/11/2026 | Ricardo Costa    | Reescrita alinhada ao código: removidas `Turma`, `Pagamento`, `FilaEspera` e `Notificacao`; adicionados `Servico` e fila de espera como status do agendamento. |

@@ -29,7 +29,7 @@ Espera-se que o sistema ofereça uma experiência simples, organizada e segura. 
 
 ### 2.4 Escopo inicial
 
-O sistema deverá apoiar o cadastro de usuários, alunos e profissionais, o gerenciamento de turmas e espaços, o agendamento de treinamentos, o controle de disponibilidade, os cancelamentos e o acompanhamento básico dos atletas.
+O sistema deverá apoiar o cadastro de usuários, alunos e profissionais, o gerenciamento de serviços e salas, o agendamento individual de treinamentos com controle da capacidade da sala (incluindo fila de espera automática) e o acompanhamento dos atletas por meio de registros de treinamento.
 
 ## 3. Fases do Design Thinking
 
@@ -44,16 +44,15 @@ Durante a análise do contexto, foram identificadas as seguintes necessidades:
 - Controlar a disponibilidade dos profissionais e o limite de vagas dos espaços;
 - Facilitar o agendamento e o cancelamento por meio de autoatendimento para os responsáveis;
 - Permitir uma consulta rápida das informações de evolução física e técnica;
-- Reduzir erros operacionais, como a superlotação de turmas;
-- Controlar adequadamente os acessos, garantindo que os responsáveis visualizem apenas seus dependentes e que os treinadores acessem apenas suas turmas;
+- Reduzir erros operacionais, como a superlotação dos espaços de treinamento;
+- Controlar adequadamente os acessos, garantindo que os responsáveis visualizem apenas seus dependentes e que os treinadores acessem apenas os seus agendamentos;
 - Proteger os dados pessoais e sensíveis de menores de idade.
 
 #### 3.1.2 Principais dificuldades
 
 - **Cancelamentos de última hora:** prejudicam o planejamento dos exercícios, pois o treinador organiza o treino para uma quantidade de atletas diferente da quantidade presente.
-- **Agendamentos incorretos:** podem colocar uma criança de 7 anos em uma turma avançada destinada a atletas de 11 ou 12 anos.
-- **Falhas de comunicação:** o profissional pode não ser avisado a tempo quando um aluno é adicionado ou removido de sua turma.
-- **Pagamento sem retorno claro:** o responsável pode não saber se a cobrança foi aprovada, ficou pendente ou falhou.
+- **Agendamentos incorretos:** podem inscrever uma criança fora da faixa etária atendida pela academia (7 a 12 anos).
+- **Superlotação:** quando vários responsáveis tentam agendar o mesmo horário, é necessário controlar a capacidade da sala e informar quem aguardará uma vaga.
 - **Dependência de processos manuais:** planilhas e mensagens descentralizadas dificultam a atualização das informações.
 - **Acesso inadequado a dados:** informações pessoais, médicas ou financeiras podem ser visualizadas por pessoas sem autorização.
 
@@ -75,13 +74,11 @@ Como oferecer à academia de futebol uma gestão centralizada, segura e eficient
 
 A solução deverá considerar principalmente:
 
-- Gestão de alunos com vínculo obrigatório a um ou mais responsáveis;
-- Controle de disponibilidade e lotação dos espaços de treinamento;
-- Agendamento de treinamentos com validação das regras de negócio;
-- Cancelamento e reagendamento com prazos definidos;
-- Relatórios de evolução técnica e física;
-- Indicadores operacionais e financeiros, quando aplicável;
-- Pagamento de treinamentos por integração com a API da equipe mobile, quando aplicável;
+- Gestão de alunos com vínculo obrigatório a um responsável;
+- Controle de capacidade e lotação das salas de treinamento;
+- Agendamento individual de treinamentos com validação das regras de negócio;
+- Fila de espera automática quando a sala atinge a capacidade no horário;
+- Registros de evolução técnica e física por treinamento;
 - Proteção rigorosa dos dados pessoais e sensíveis.
 
 #### 3.2.4 Objetivo da solução
@@ -116,31 +113,21 @@ Gerar e organizar possíveis soluções para os problemas identificados, traduzi
 - Cadastrar treinadores e suas especialidades;
 - Controlar a disponibilidade e a grade de horários dos profissionais;
 - Disponibilizar uma agenda individual para cada treinador;
-- Associar profissionais às turmas e aos treinamentos correspondentes.
+- Associar profissionais aos serviços que ministram e aos agendamentos correspondentes.
 
 ##### Gestão de treinamentos
 
-- Permitir o agendamento de treinos com validação automática da faixa etária;
-- Controlar o limite de vagas de cada turma ou espaço;
-- Impedir conflitos de horário entre aluno, profissional e espaço;
-- Permitir o cancelamento pelo responsável dentro do prazo estabelecido;
-- Liberar a vaga quando um agendamento for cancelado;
-- Enviar notificações sobre alterações no treinamento ou na turma;
-- Avaliar a criação de uma fila de espera para turmas lotadas.
+- Permitir o agendamento individual de treinos com validação automática da faixa etária;
+- Controlar a capacidade da sala no horário do treino;
+- Posicionar automaticamente o aluno em fila de espera quando a sala lotar;
+- Permitir o cancelamento pelo responsável;
+- Liberar a capacidade da sala quando um agendamento for cancelado;
 
 ##### Administração
 
-- Disponibilizar um dashboard com a lotação das turmas e a ocupação dos espaços;
-- Gerenciar usuários, alunos, responsáveis, profissionais, espaços e turmas;
-- Acompanhar cancelamentos, faltas e conflitos de agenda;
-- Avaliar o controle de mensalidades e de inadimplência em uma etapa posterior.
-
-##### Pagamentos
-
-- Consumir a API de pagamentos criada pela equipe mobile;
-- Vincular cada solicitação ao agendamento por uma referência única;
-- Exibir os estados aprovado, pendente, recusado e erro;
-- Manter no backend apenas dados de rastreabilidade, sem dados sensíveis do meio de pagamento.
+- Gerenciar profissionais, salas e serviços pelo Django Admin;
+- Consultar salas e serviços por qualquer usuário autenticado;
+- Acompanhar agendamentos ativos e fila de espera.
 
 #### 3.3.3 Priorização inicial
 

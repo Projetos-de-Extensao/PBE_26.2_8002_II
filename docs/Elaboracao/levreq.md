@@ -9,52 +9,41 @@ title: Levantamento de Requisitos e Caso de Uso
 
 ## 1. Identificação dos Stakeholders
 
-- **Responsável:** Pessoa legalmente responsável por um ou mais alunos. Cria conta, cadastra dependentes, agenda e cancela treinamentos, consulta a evolução dos filhos e recebe comunicados.
+- **Responsável:** Pessoa legalmente responsável por um ou mais alunos. Cria conta, cadastra dependentes, agenda e cancela treinamentos e consulta a evolução dos filhos.
 - **Aluno/Atleta:** Criança de 7 a 12 anos matriculada na academia. Não acessa o sistema diretamente, mas é o beneficiário direto dos cadastros e agendamentos feitos pelo responsável.
-- **Profissional (Treinador):** Responsável por ministrar os treinamentos. Consulta sua agenda, acompanha as turmas, registra presença e avaliações físicas/técnicas.
-- **Administrador/Recepção:** Gerencia cadastros de usuários, profissionais, campos, turmas e horários. Acompanha conflitos, cancelamentos e relatórios operacionais.
+- **Profissional (Treinador):** Responsável por ministrar os treinamentos. Consulta sua agenda e registra presença e avaliações físicas/técnicas dos seus agendamentos.
+- **Administrador:** Usuário com privilégio de escrita (staff) sobre profissionais, salas e serviços, gerenciado pelo Django Admin.
 
 ## 2. Requisitos Funcionais
 
-| ID   | Descrição                                                                                                                                                                 | Prioridade |
-| ---- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------- |
-| RF01 | O sistema deve permitir que o responsável crie uma conta com dados pessoais, contato e credenciais de acesso                                                              | Alta       |
-| RF02 | O sistema deve permitir login, logout e recuperação de senha                                                                                                              | Alta       |
-| RF03 | O sistema deve permitir que o responsável cadastre um ou mais alunos vinculados à sua conta                                                                               | Alta       |
-| RF04 | O sistema deve validar automaticamente a idade do aluno (7 a 12 anos) no cadastro                                                                                         | Alta       |
-| RF05 | O sistema deve permitir que a administração cadastre profissionais, suas especialidades e disponibilidade                                                                 | Alta       |
-| RF06 | O sistema deve permitir que a administração cadastre campos/espaços com capacidade máxima                                                                                 | Alta       |
-| RF07 | O sistema deve permitir que a administração cadastre turmas com modalidade, faixa etária, capacidade, local e profissional responsável                                    | Alta       |
-| RF08 | O sistema deve permitir que o responsável agende um treinamento para um aluno, selecionando turma, data e horário disponíveis                                             | Alta       |
-| RF09 | O sistema deve validar disponibilidade do aluno, do profissional, do espaço e da turma antes de confirmar um agendamento                                                  | Alta       |
-| RF10 | O sistema deve bloquear novos agendamentos quando a turma atingir sua capacidade máxima                                                                                   | Alta       |
-| RF11 | O sistema deve impedir agendamentos duplicados para o mesmo aluno no mesmo horário                                                                                        | Alta       |
-| RF12 | O sistema deve permitir que o responsável consulte a agenda de treinamentos de cada dependente                                                                            | Alta       |
-| RF13 | O sistema deve permitir que o responsável cancele um agendamento dentro do prazo definido pela academia                                                                   | Alta       |
-| RF14 | O sistema deve liberar automaticamente a vaga da turma quando um agendamento for cancelado                                                                                | Alta       |
-| RF15 | O sistema deve bloquear o cancelamento de um agendamento quando estiver fora do prazo mínimo definido pela academia (prazo a definir), salvo autorização da administração | Alta       |
-| RF16 | O sistema deve permitir que o profissional consulte sua agenda individual e a lista de alunos de cada turma                                                               | Média      |
-| RF17 | O sistema deve permitir que o profissional registre presença, ausência e observações de avaliação por treinamento                                                         | Média      |
-| RF18 | O sistema deve permitir que o responsável consulte a evolução física/técnica de seus dependentes                                                                          | Média      |
-| RF19 | O sistema deve permitir que a administração cancele um treinamento por motivo operacional e identifique os usuários afetados                                              | Média      |
-| RF20 | O sistema deve enviar notificações internas sobre criação, alteração ou cancelamento de agendamentos                                                                      | Média      |
-| RF21 | O sistema deve disponibilizar um dashboard com a ocupação das turmas e a disponibilidade dos profissionais                                                                | Média      |
-| RF22 | O sistema deve permitir fila de espera automática para turmas lotadas                                                                                                     | Média      |
-| RF23 | O sistema deve solicitar o pagamento por meio da API de pagamentos fornecida pela equipe mobile antes de confirmar um agendamento que exija cobrança                      | Alta       |
-| RF24 | O sistema deve registrar o identificador da transação, o valor, o status e a data da tentativa de pagamento retornados pela API de pagamentos                             | Alta       |
-| RF25 | O sistema deve confirmar o agendamento somente quando a API de pagamentos retornar pagamento aprovado                                                                     | Alta       |
-| RF26 | O sistema deve informar ao responsável quando o pagamento estiver pendente, for recusado ou apresentar erro, sem reservar definitivamente a vaga                          | Alta       |
-| RF27 | O sistema não deve armazenar dados sensíveis do meio de pagamento, delegando seu processamento à API de pagamentos mobile                                                 | Alta       |
+| ID   | Descrição                                                                                                                        | Prioridade |
+| ---- | --------------------------------------------------------------------------------------------------------------------------------- | ---------- |
+| RF01 | O sistema deve permitir que qualquer pessoa crie uma conta com nome de usuário, e-mail e senha                                    | Alta       |
+| RF02 | O sistema deve permitir login por token, logout com invalidação do token e proteção de todos os endpoints por autenticação         | Alta       |
+| RF03 | O sistema deve permitir que o responsável autenticado cadastre um ou mais alunos vinculados à sua conta                           | Alta       |
+| RF04 | O sistema deve validar automaticamente a idade do aluno (7 a 12 anos) no cadastro, gerando matrícula única no formato `ALU-<ano>-<código>` | Alta |
+| RF05 | O sistema deve permitir o cadastro de profissionais com nome, ocupação (tipo de serviço) e disponibilidade, gerando código único no formato `PRO-<ano>-<código>` | Alta |
+| RF06 | O sistema deve permitir que a administração gerencie as salas com nome, capacidade e disponibilidade                              | Alta       |
+| RF07 | O sistema deve manter um catálogo de serviços (Nutrição Esportiva, Fisioterapia, Recuperação Muscular, Preparação Física, Treinamento Funcional e Avaliação de Performance), com descrição, duração e sala correspondente | Alta |
+| RF08 | O sistema deve permitir associar profissionais aos serviços que ministram, sem duplicidade                                        | Média      |
+| RF09 | O sistema deve permitir que o responsável agende um treinamento para um aluno, informando aluno, serviço, profissional, sala, data e hora | Alta |
+| RF10 | O sistema deve comparar a quantidade de agendamentos ativos com a capacidade da sala no horário escolhido                          | Alta       |
+| RF11 | O sistema deve posicionar automaticamente o agendamento em fila de espera quando a capacidade da sala no horário for atingida      | Alta       |
+| RF12 | O sistema deve informar a posição do aluno na fila de espera, calculada pela ordem de criação dos agendamentos em espera            | Alta       |
+| RF13 | O sistema deve impedir que um responsável agende treinamento para aluno que não é seu dependente                                   | Alta       |
+| RF14 | O sistema deve permitir que o responsável consulte a agenda de treinamentos de cada dependente                                     | Alta       |
+| RF15 | O sistema deve permitir que o responsável cancele um agendamento                                                                   | Alta       |
+| RF16 | O sistema deve permitir que o profissional registre, por agendamento, presença, observações e avaliações física e técnica           | Média      |
+| RF17 | O sistema deve restringir a criação de registros de treinamento aos usuários com perfil de profissional                             | Média      |
+| RF18 | O sistema deve permitir que o responsável consulte os registros de treinamento apenas dos seus dependentes                          | Média      |
 
 ## 3. Requisitos Não Funcionais
 
-- **Performance:** O sistema deve validar disponibilidade e responder a um pedido de agendamento em até 2 segundos, mesmo com requisições simultâneas.
-- **Segurança:** O sistema deve proteger dados pessoais e de saúde de menores de idade conforme a LGPD, aplicando controle de acesso por perfil (responsável, profissional, administração) e registrando trilha de auditoria para alterações sensíveis.
-- **Usabilidade:** A interface de agendamento deve ser simples o suficiente para uso por responsáveis sem familiaridade técnica, seguindo o princípio de reduzir atrito identificado no Design Thinking.
-- **Confiabilidade:** O sistema deve garantir que nenhuma sala/turma/profissional seja alocado em conflito de horário, mesmo em caso de concorrência (duas requisições simultâneas).
-- **Disponibilidade:** O sistema deve estar acessível para consulta e agendamento fora do horário comercial, já que os responsáveis podem agendar remotamente a qualquer momento.
-- **Integração:** O backend deve consumir a API de pagamentos mobile por meio de contrato documentado, com autenticação, timeout, tratamento de indisponibilidade e registro das respostas.
-- **Segurança financeira:** O backend não deve receber nem persistir número de cartão, código de segurança ou outros dados sensíveis do meio de pagamento; deve armazenar apenas os dados necessários para rastreabilidade da transação.
+- **Segurança:** toda a API exige autenticação por token, exceto o registro de conta; cada usuário acessa apenas os dados vinculados ao seu perfil (responsável ou profissional), conforme a LGPD aplicada a dados de menores.
+- **Usabilidade:** a API segue padrão REST previsível, com schemas documentados automaticamente via drf-spectacular.
+- **Consistência:** a mudança de status para fila de espera é calculada no ato da validação do agendamento, garantindo que o limite da sala seja respeitado em cada requisição.
+- **Disponibilidade:** o sistema deve estar acessível para consulta e agendamento fora do horário comercial, já que os responsáveis podem agendar remotamente a qualquer momento.
+- **Manutenibilidade:** o catálogo de serviços e salas é mantido pela administração por meio do Django Admin, sem necessidade de alteração de código.
 
 ## 4. Casos de Uso
 
@@ -64,63 +53,52 @@ title: Levantamento de Requisitos e Caso de Uso
 - **Pré-condição:** Responsável está autenticado e possui ao menos um aluno cadastrado.
 - **Fluxo Principal:**
   1. Responsável seleciona o aluno.
-  2. Responsável escolhe uma turma compatível com a faixa etária do aluno.
-  3. Responsável seleciona data e horário disponíveis.
-  4. Sistema valida disponibilidade do aluno, do profissional, do espaço e da turma.
-  5. Sistema solicita o pagamento à API de pagamentos mobile, quando houver cobrança.
-  6. API de pagamentos retorna o status da transação.
-  7. Sistema confirma o agendamento somente após o pagamento aprovado e notifica o profissional responsável.
+  2. Responsável seleciona o serviço, o profissional, a sala e a data/hora.
+  3. Sistema valida que o aluno é dependente do responsável autenticado.
+  4. Sistema conta os agendamentos ativos para a mesma sala e horário.
+  5. Se a quantidade for inferior à capacidade da sala, o sistema registra o agendamento com status "ativo".
+  6. Se a capacidade foi atingida, o sistema registra o agendamento com status "fila_espera" e calcula a posição do aluno na fila.
 - **Fluxos Alternativos:**
-  - FA1: Turma lotada → Sistema informa indisponibilidade e sugere outra turma ou horário.
-  - FA2: Conflito de horário para o aluno → Sistema bloqueia o agendamento e exibe o conflito.
-  - FA3: Pagamento recusado ou com erro → Sistema não confirma o agendamento, informa o motivo disponível e permite nova tentativa.
-  - FA4: API de pagamentos indisponível ou sem resposta → Sistema mantém a solicitação pendente, não reserva definitivamente a vaga e orienta o responsável a tentar novamente.
-- **Pós-condição:** Agendamento é registrado com status "confirmado" e a vaga da turma é reservada.
-
-### UC07 - Processar Pagamento
-
-- **Atores:** Responsável, Sistema, API de pagamentos mobile
-- **Pré-condição:** Responsável autenticado, aluno e treinamento selecionados e dados do agendamento validados.
-- **Fluxo Principal:**
-  1. Sistema apresenta o valor e as condições da cobrança ao responsável.
-  2. Responsável confirma o início do pagamento.
-  3. Sistema envia à API de pagamentos mobile somente os dados necessários da cobrança e uma referência do agendamento.
-  4. API de pagamentos processa a transação e retorna seu identificador e status.
-  5. Sistema registra o retorno da API sem armazenar dados sensíveis do meio de pagamento.
-  6. Sistema confirma o agendamento quando o status for aprovado.
-- **Fluxos Alternativos:**
-  - FA1: Pagamento recusado → Sistema registra a tentativa, informa a recusa e mantém o agendamento não confirmado.
-  - FA2: Pagamento pendente → Sistema registra o status pendente e aguarda nova consulta ou atualização da API.
-  - FA3: Falha de comunicação → Sistema registra o erro técnico, não confirma o agendamento e permite nova tentativa sem duplicar a cobrança.
-- **Pós-condição:** Transação registrada com status correspondente ao retorno da API; agendamento confirmado somente no status aprovado.
-- **Regras de negócio:** A API mobile é responsável pelo processamento financeiro; o backend é responsável pela orquestração, rastreabilidade e atualização do agendamento.
-- **Requisitos relacionados:** RF23, RF24, RF25, RF26 e RF27.
+  - FA1: Aluno não pertence ao responsável → Sistema nega a operação e informa a falta de permissão.
+  - FA2: Sala ou horário não informados → Sistema registra o agendamento sem controle de capacidade (campos opcionais).
+- **Pós-condição:** Agendamento é registrado com status "ativo" ou "fila_espera", com posição da fila calculada quando aplicável.
 
 ### UC02 - Cancelar Agendamento
 
 - **Atores:** Responsável, Sistema
-- **Pré-condição:** Existe um agendamento ativo vinculado ao aluno do responsável.
+- **Pré-condição:** Existe um agendamento vinculado a um aluno do responsável.
 - **Fluxo Principal:**
-  1. Responsável seleciona o agendamento a ser cancelado.
-  2. Sistema verifica se o cancelamento está dentro do prazo permitido.
-  3. Responsável confirma o cancelamento.
-  4. Sistema atualiza o status do agendamento e libera a vaga da turma.
-- **Fluxos Alternativos:**
-  - FA1: Cancelamento com menos de 8 horas de antecedência → Sistema bloqueia a ação ou exige autorização da administração.
-- **Pós-condição:** Agendamento passa para o status "cancelado" e a vaga fica disponível para outro aluno.
+  1. Responsável consulta a agenda dos dependentes.
+  2. Responsável seleciona o agendamento a ser cancelado.
+  3. Sistema altera o status do agendamento para "inativo".
+- **Pós-condição:** O agendamento deixa de contar para a capacidade da sala, liberando vaga para novos agendamentos ativos.
 
 ### UC03 - Cadastrar Aluno
 
 - **Atores:** Responsável, Sistema
 - **Pré-condição:** Responsável possui conta ativa no sistema.
 - **Fluxo Principal:**
-  1. Responsável informa nome, data de nascimento e dados de contato do aluno.
-  2. Sistema valida se a idade está dentro da faixa aceita pela academia (7 a 12 anos).
-  3. Responsável vincula o aluno à sua conta.
-  4. Sistema confirma o cadastro.
+  1. Responsável informa nome e data de nascimento do aluno.
+  2. Sistema calcula a idade do aluno.
+  3. Sistema verifica se a idade está entre 7 e 12 anos.
+  4. Sistema vincula o aluno à conta do responsável autenticado.
+  5. Sistema gera a matrícula única do aluno.
 - **Fluxos Alternativos:**
-  - FA1: Idade fora da faixa aceita → Sistema bloqueia o cadastro e informa o motivo.
+  - FA1: Idade fora da faixa aceita → Sistema bloqueia o cadastro e informa que a academia atende exclusivamente crianças de 7 a 12 anos.
 - **Pós-condição:** Aluno é registrado no sistema e vinculado ao responsável.
+
+### UC04 - Registrar Treinamento
+
+- **Atores:** Profissional, Sistema
+- **Pré-condição:** Usuário autenticado possui perfil de profissional e existe um agendamento correspondente.
+- **Fluxo Principal:**
+  1. Profissional informa o agendamento e os dados do registro.
+  2. Profissional registra a presença ou ausência do aluno.
+  3. Profissional informa observações e as avaliações física e técnica.
+  4. Sistema atribui o registro ao profissional autenticado.
+- **Fluxos Alternativos:**
+  - FA1: Usuário sem perfil de profissional → Sistema nega a operação.
+- **Pós-condição:** Registro de treinamento criado, vinculado ao agendamento e ao profissional (relação 1:1 com o agendamento).
 
 ## 5. Diagrama de Casos de Uso
 
@@ -138,32 +116,33 @@ actor Administrador
 usecase (UC01: Agendar Treinamento) as UC01
 usecase (UC02: Cancelar Agendamento) as UC02
 usecase (UC03: Cadastrar Aluno) as UC03
-usecase (UC04: Cadastrar Turma) as UC04
-usecase (UC05: Registrar Presenca e Avaliacao) as UC05
-usecase (UC06: Consultar Agenda) as UC06
+usecase (UC04: Registrar Treinamento) as UC04
+usecase (UC05: Consultar Agenda) as UC05
 
-usecase (Turma Lotada) as FA1
-usecase (Conflito de Horario) as FA2
-usecase (Fora do Prazo de Cancelamento) as FA3
+usecase (Fila de Espera Automatica) as FA1
+usecase (Aluno nao vinculado) as FA2
+usecase (Validar faixa etaria) as INC1
+usecase (Validar capacidade da sala) as INC2
 
 Responsavel --> UC01
 Responsavel --> UC02
 Responsavel --> UC03
-Responsavel --> UC06
+Responsavel --> UC05
 
-Administrador --> UC04
-Administrador --> UC02
-
+Profissional --> UC04
 Profissional --> UC05
-Profissional --> UC06
+
+Administrador --> UC05
 
 FA1 .> UC01 : <<extend>>
 FA2 .> UC01 : <<extend>>
-FA3 .> UC02 : <<extend>>
+
+UC01 ..> INC1 : <<include>>
+UC01 ..> INC2 : <<include>>
 
 note right of UC01
   **Pré-condição**: Responsável logado.
-  **Pós-condição**: Agendamento confirmado.
+  **Pós-condição**: Agendamento ativo ou em fila de espera.
 end note
 
 @enduml
@@ -171,73 +150,80 @@ end note
 
 **Explicação:**
 
-1. **Atores:** Responsável (agenda e cancela), Profissional (registra presença e consulta agenda), Administrador (cadastra turmas e pode cancelar por motivo operacional).
-2. **Fluxo Principal (UC01):** Selecionar aluno → Selecionar turma/horário → Validar disponibilidade → Confirmar agendamento.
-3. **Relacionamentos `<<extend>>`:** Representam os fluxos alternativos identificados nos casos de uso (turma lotada, conflito de horário, cancelamento fora do prazo).
+1. **Atores:** Responsável (agenda, cancela e cadastra alunos), Profissional (registra treinamentos), Administrador (gerencia salas e serviços pelo Django Admin).
+2. **Fluxo Principal (UC01):** Selecionar aluno → Selecionar serviço/profissional/sala/horário → Validar vínculo e capacidade → Registrar agendamento.
+3. **Relacionamentos:** `<<extend>>` para fila de espera (quando a sala lota) e `<<include>>` para as validações obrigatórias.
 
 ## 6. Diagrama de Classes
 
-Diagrama de classes conceitual representando as principais entidades do sistema:
+Diagrama de classes conceitual representando as entidades implementadas no sistema:
 
 ```
 @startuml AcademiaEsportiva_Classes
 
 class Responsavel {
-  - id: String
-  - nome: String
-  - email: String
-  - telefone: String
-  + cadastrarAluno()
-  + agendarTreinamento()
-  + cancelarAgendamento()
+  + nome: String
+  + cpf: String
+  + telefone: String
 }
 
 class Aluno {
-  - id: String
-  - nome: String
-  - dataNascimento: Date
-  - status: String
-  + calcularIdade()
+  + matricula: String
+  + nome: String
+  + data_nascimento: Date
+  + status: String
+  + idade: Integer
 }
 
 class Profissional {
-  - id: String
-  - nome: String
-  - especialidade: String
-  + registrarPresenca()
-  + registrarAvaliacao()
+  + codigo_profissional: String
+  + nome: String
+  + ocupacao: String
+  + disponibilidade: String
 }
 
-class Turma {
-  - id: String
-  - modalidade: String
-  - faixaEtariaMin: Integer
-  - faixaEtariaMax: Integer
-  - capacidadeMaxima: Integer
-  + verificarDisponibilidade()
+class Sala {
+  + nome: String
+  + capacidade: Integer
+  + disponivel: Boolean
+}
+
+class Servico {
+  + nome: String
+  + descricao: String
+  + duracao_minutos: Integer
 }
 
 class Agendamento {
-  - id: String
-  - dataHora: DateTime
-  - status: String
-  + confirmar()
-  + cancelar()
+  + data_hora: DateTime
+  + status: String
+  + criado_em: DateTime
 }
 
-Responsavel "1" --> "1..*" Aluno
-Aluno "1" --> "0..*" Agendamento
-Turma "1" --> "0..*" Agendamento
-Profissional "1" --> "0..*" Turma
-Agendamento "0..*" --> "1" Turma
+class RegistroTreinamento {
+  + presenca: String
+  + observacoes: String
+  + avaliacao_fisica: String
+  + avaliacao_tecnica: String
+}
+
+Responsavel "1" -- "1..*" Aluno : possui
+Agendamento "0..*" --> "1" Aluno
+Agendamento "0..*" --> "1" Profissional
+Agendamento "0..*" --> "0..1" Sala
+Agendamento "0..*" --> "1" Servico
+Profissional "1" -- "0..*" Servico : ministra
+Agendamento "1" -- "0..1" RegistroTreinamento : gera
+Profissional "1" -- "0..*" RegistroTreinamento : registra
 
 @enduml
 ```
 
 **Explicação:**
 
-1. **Classes principais:** Responsavel, Aluno, Profissional, Turma e Agendamento.
-2. **Relacionamentos:** Um responsável possui 1 ou mais alunos; um aluno pode ter 0 ou mais agendamentos; uma turma está associada a exatamente um profissional; um agendamento pertence a exatamente uma turma.
+1. **Classes principais:** Responsavel, Aluno, Profissional, Sala, Servico, Agendamento e RegistroTreinamento.
+2. **Relacionamentos:** Um responsável possui um ou mais alunos; um agendamento pertence a um aluno, a um profissional, a um serviço e opcionalmente a uma sala; profissionais e serviços relacionam-se por muitos-para-muitos; cada agendamento gera no máximo um registro de treinamento.
+3. **Fila de espera:** não é uma entidade separada — é o status `fila_espera` do próprio agendamento, com posição calculada pela ordem de criação.
 
 ## 7. Protótipo (Exemplo Simplificado)
 
@@ -248,8 +234,10 @@ Protótipo de telas alinhado ao caso de uso UC01, usando **Salt (PlantUML)**:
 {
   Tela de Agendamento
   Aluno: ^Pedro (9 anos)^
-  Turma: ^Iniciação - Ter/Qui 16h^
-  Data: "12/10/2026"
+  Serviço: ^Preparação Física^
+  Profissional: ^Carlos Silva^
+  Sala: ^Área de Treinamento Funcional^
+  Data: "12/10/2026 14:00"
   [Confirmar Agendamento] | [Cancelar]
 }
 @endsalt
@@ -259,8 +247,9 @@ Protótipo de telas alinhado ao caso de uso UC01, usando **Salt (PlantUML)**:
 @startsalt
 {
   **Agendamento Confirmado!**
-  Treino de Pedro em 12/10/2026 as 16h
-  Local: Campo 2 - Professor Carlos
+  Treino de Pedro em 12/10/2026 às 14:00
+  Serviço: Preparação Física - Profissional: Carlos
+  Status: Ativo
   [Ver Agenda] | [Voltar ao Início]
 }
 @endsalt
@@ -269,17 +258,18 @@ Protótipo de telas alinhado ao caso de uso UC01, usando **Salt (PlantUML)**:
 **Telas previstas (fluxo do caso de uso UC01):**
 
 1. **Seleção do aluno:** lista de dependentes vinculados ao responsável.
-2. **Seleção da turma:** turmas compatíveis com a idade do aluno, com horário e vagas.
-3. **Confirmação:** resumo do agendamento (aluno, turma, data, local, profissional).
-4. **Tela de sucesso:** confirmação com opção de ver agenda ou voltar ao início.
+2. **Seleção do serviço e profissional:** serviços do catálogo com seus profissionais e salas.
+3. **Confirmação:** resumo do agendamento (aluno, serviço, sala, data, profissional).
+4. **Tela de sucesso:** confirmação do status — ativo ou posição na fila de espera.
 
 ## 8. Validação
 
-- **Prazo de cancelamento:** confirmar com a administração qual o prazo mínimo aceito antes do treino (ex: 2h, 24h).
+- **Capacidade da sala:** validar com a administração a capacidade de cada espaço e se a fila de espera deve ter limite de tamanho.
 - **Teste com usuários:** validar o fluxo de agendamento (UC01) com um responsável real ou representante do perfil, verificando se o fluxo é intuitivo.
 
 ## Autor(es)
 
-| Data       | Versão | Descrição                          | Autor(es)     |
-| ---------- | ------ | ---------------------------------- | ------------- |
-| 23/09/2026 | 1.0    | Criação do documento de requisitos | Ricardo Costa |
+| Data       | Versão | Descrição                                                                                          | Autor(es)     |
+| ---------- | ------ | -------------------------------------------------------------------------------------------------- | ------------- |
+| 23/09/2026 | 1.0    | Criação do documento de requisitos                                                                 | Ricardo Costa |
+| 13/11/2026 | 2.0    | Reescrita para refletir o código implementado: agendamento individual por serviço, fila de espera por sala, sem turmas e sem pagamentos | Ricardo Costa |
